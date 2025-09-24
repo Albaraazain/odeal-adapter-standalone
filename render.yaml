@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: odeal-adapter
+    runtime: node
+    plan: free  # Use 'starter' for production ($7/month)
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BASKET_PROVIDER
+        value: mock
+      - key: RATE_LIMIT_MAX_PER_MIN
+        value: 120
+      - key: ROUTE_ROP_AUTOSYNC
+        value: false
+      - key: ODEAL_REQUEST_KEY
+        sync: false  # This will need to be set manually in Render dashboard

@@ -1,0 +1,61 @@
+[build]
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[dev]
+  publish = "dist"
+  functions = "netlify/functions"
+  port = 8787
+
+# Redirect rules for API routes to match Vercel structure
+[[redirects]]
+  from = "/api/webhooks/odeal/payment-succeeded"
+  to = "/.netlify/functions/webhooks-odeal-payment-succeeded"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/webhooks/odeal/payment-failed"
+  to = "/.netlify/functions/webhooks-odeal-payment-failed"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/webhooks/odeal/payment-cancelled"
+  to = "/.netlify/functions/webhooks-odeal-payment-cancelled"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/app2app/baskets/*"
+  to = "/.netlify/functions/app2app-baskets/:splat"
+  status = 200
+  force = true
+
+# Health check endpoint
+[[redirects]]
+  from = "/api/health"
+  to = "/.netlify/functions/health"
+  status = 200
+  force = true
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# Rate limiting headers
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"

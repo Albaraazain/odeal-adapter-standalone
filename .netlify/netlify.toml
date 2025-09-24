@@ -1,0 +1,113 @@
+functionsDirectory = "/Users/albaraa/Developer/Projects/rop_version_1/odeal_adapter/netlify/functions"
+functionsDirectoryOrigin = "config-v1"
+headersOrigin = "config"
+redirectsOrigin = "config"
+plugins = []
+
+[build]
+publish = "/Users/albaraa/Developer/Projects/rop_version_1/odeal_adapter/dist"
+publishOrigin = "config"
+base = "/Users/albaraa/Developer/Projects/rop_version_1/odeal_adapter"
+functions = "/Users/albaraa/Developer/Projects/rop_version_1/odeal_adapter/netlify/functions"
+
+[build.environment]
+NODE_VERSION = "20"
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[dev]
+publish = "dist"
+functions = "netlify/functions"
+port = 8787.0
+
+[functions]
+
+[functions."*"]
+
+[[headers]]
+for = "/*"
+
+[headers.values]
+X-Frame-Options = "DENY"
+X-Content-Type-Options = "nosniff"
+X-XSS-Protection = "1; mode=block"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+[[headers]]
+for = "/api/*"
+
+[headers.values]
+Cache-Control = "no-cache, no-store, must-revalidate"
+Pragma = "no-cache"
+Expires = "0"
+
+[[redirects]]
+from = "/api/webhooks/odeal/payment-succeeded"
+to = "/.netlify/functions/webhooks-odeal-payment-succeeded"
+status = 200.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/webhooks/odeal/payment-failed"
+to = "/.netlify/functions/webhooks-odeal-payment-failed"
+status = 200.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/webhooks/odeal/payment-cancelled"
+to = "/.netlify/functions/webhooks-odeal-payment-cancelled"
+status = 200.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/app2app/baskets/*"
+to = "/.netlify/functions/app2app-baskets/:splat"
+status = 200.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/health"
+to = "/.netlify/functions/health"
+status = 200.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]

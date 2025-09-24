@@ -1,0 +1,8 @@
+{
+  "name": "odeal-adapter-netlify",
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  }
+}
