@@ -110,6 +110,7 @@ async function handler(event, context) {
 
     // Resolve basket
     const basket = await resolveBasket(referenceCode);
+    console.log(`[basket-netlify] refRaw=${pathParts[pathParts.length - 1]} -> ref=${referenceCode} ok`);
 
     // Validate basket result
     if (!basket) {

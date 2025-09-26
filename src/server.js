@@ -63,7 +63,8 @@ app.get('/health', (req, res) => {
 app.get('/app2app/baskets/:referenceCode', async (req, res) => {
   if (!verifyOdeal(req, res)) return;
   try {
-    let referenceCode = req.params.referenceCode;
+    const referenceCodeRaw = req.params.referenceCode;
+    let referenceCode = referenceCodeRaw;
 
     // Robustness: some older/alternative app2app flows may hit basketUrl as
     //   /baskets/payment?amount=..&customInfo=REF_...
@@ -77,6 +78,7 @@ app.get('/app2app/baskets/:referenceCode', async (req, res) => {
     }
 
     const basket = await resolveBasket(referenceCode);
+    console.log(`[basket] refRaw=${referenceCodeRaw} -> ref=${referenceCode} ok`);
     res.json(basket);
   } catch (e) {
     res.status(500).json({ error: 'Basket resolution error', detail: String(e?.message || e) });

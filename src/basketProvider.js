@@ -2,6 +2,7 @@
 
 const PROVIDER = (process.env.BASKET_PROVIDER || 'mock').toLowerCase();
 const DEFAULT_TOTAL = Number(process.env.BASKET_DEFAULT_TOTAL || '100.00');
+const EMP_REF = process.env.ODEAL_EMPLOYEE_REF || process.env.ODEAL_EMPLOYEE_CODE || '';
 
 function parseCheckId(referenceCode) {
   // Accept formats like ROP_3215799, CHECK_123, trailing digits, and directcharge fallback
@@ -50,7 +51,7 @@ function mockBasket(referenceCode) {
       },
     ],
     customerInfo: {},
-    employeeInfo: {},
+    employeeInfo: EMP_REF ? { employeeReferenceCode: EMP_REF } : {},
     receiptInfo: {},
     customInfo: null,
     paymentOptions: [{ type: 'CREDITCARD', amount: DEFAULT_TOTAL }],
@@ -78,16 +79,17 @@ function ropLinesToBasket(referenceCode, rop) {
   if (!products.length) return mockBasket(referenceCode);
 
   const total = products.reduce((s, p) => s + p.price.grossPrice * p.quantity, 0);
-  return {
+  const basket = {
     referenceCode,
     basketPrice: { grossPrice: Number(total.toFixed(2)) },
     products,
     customerInfo: {},
-    employeeInfo: {},
+    employeeInfo: EMP_REF ? { employeeReferenceCode: EMP_REF } : {},
     receiptInfo: {},
     customInfo: null,
     paymentOptions: [{ type: 'CREDITCARD', amount: Number(total.toFixed(2)) }],
   };
+  return basket;
 }
 
 async function resolveBasket(referenceCode) {
@@ -119,4 +121,3 @@ export {
   mockBasket,
   ropLinesToBasket
 };
-

@@ -16,6 +16,7 @@ export default async function handler(req, res) {
       }
     }
     const basket = await resolveBasket(referenceCode);
+    console.log(`[basket-api] refRaw=${q.referenceCode} -> ref=${referenceCode} ok`);
     res.status(200).json(basket);
   } catch (e) {
     res.status(500).json({ error: 'Basket resolution error', detail: String(e?.message || e) });
