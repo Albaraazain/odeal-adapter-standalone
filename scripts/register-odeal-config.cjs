@@ -17,16 +17,16 @@ require('dotenv').config();
 
 // Configuration constants
 const ODEAL_CONFIG_API = 'https://stage.odealapp.com/api/v1/configuration';
-const NETLIFY_BASE_URL = 'https://odeal-adapter.netlify.app';
+const RENDER_BASE_URL = 'https://odeal-adapter-standalone.onrender.com';
 
 // Build configuration payload
 const configurationPayload = {
     basketType: "EXTERNAL_BASKET_WITH_APP",
-    basketUrl: `${NETLIFY_BASE_URL}/api/app2app/baskets`,
-    intentUrl: `${NETLIFY_BASE_URL}/.netlify/functions/odeal-a2a-result`,
-    paymentSucceededUrl: `${NETLIFY_BASE_URL}/api/webhooks/odeal/payment-succeeded`,
-    paymentFailedUrl: `${NETLIFY_BASE_URL}/api/webhooks/odeal/payment-failed`,
-    paymentCancelledUrl: `${NETLIFY_BASE_URL}/api/webhooks/odeal/payment-cancelled`,
+    basketUrl: `${RENDER_BASE_URL}/app2app/baskets`,
+    intentUrl: `${RENDER_BASE_URL}/odeal/a2a-result`,
+    paymentSucceededUrl: `${RENDER_BASE_URL}/webhooks/odeal/payment-succeeded`,
+    paymentFailedUrl: `${RENDER_BASE_URL}/webhooks/odeal/payment-failed`,
+    paymentCancelledUrl: `${RENDER_BASE_URL}/webhooks/odeal/payment-cancelled`,
     odealRequestKey: process.env.ODEAL_REQUEST_KEY || 'test_key_for_development'
 };
 

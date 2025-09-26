@@ -5,7 +5,16 @@ export default async function handler(req, res) {
   if (!allowMethods(req, res, ['GET'])) return;
   if (!verifyOdeal(req, res)) return;
   try {
-    const { referenceCode } = req.query;
+    const q = req.query || {};
+    let referenceCode = Array.isArray(q.referenceCode) ? q.referenceCode[0] : q.referenceCode;
+    // Normalize legacy scheme hits like /baskets/payment?customInfo=REF...
+    if ((referenceCode === 'payment' || referenceCode === 'directcharge')) {
+      let custom = q.customInfo || q.reference || q.ref;
+      if (Array.isArray(custom)) custom = custom[0];
+      if (typeof custom === 'string' && custom.trim()) {
+        referenceCode = custom.trim();
+      }
+    }
     const basket = await resolveBasket(referenceCode);
     res.status(200).json(basket);
   } catch (e) {

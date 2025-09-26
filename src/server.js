@@ -63,7 +63,19 @@ app.get('/health', (req, res) => {
 app.get('/app2app/baskets/:referenceCode', async (req, res) => {
   if (!verifyOdeal(req, res)) return;
   try {
-    const referenceCode = req.params.referenceCode;
+    let referenceCode = req.params.referenceCode;
+
+    // Robustness: some older/alternative app2app flows may hit basketUrl as
+    //   /baskets/payment?amount=..&customInfo=REF_...
+    // In that case, treat customInfo as the real reference code.
+    if ((referenceCode === 'payment' || referenceCode === 'directcharge') && req.query) {
+      const q = req.query;
+      const customInfo = (q.customInfo || q.reference || q.ref);
+      if (typeof customInfo === 'string' && customInfo.trim().length > 0) {
+        referenceCode = customInfo.trim();
+      }
+    }
+
     const basket = await resolveBasket(referenceCode);
     res.json(basket);
   } catch (e) {

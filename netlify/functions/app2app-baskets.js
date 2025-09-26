@@ -20,14 +20,21 @@ async function handler(event, context) {
     const pathParts = event.path.split('/');
     let referenceCode = pathParts[pathParts.length - 1];
 
-    // Handle directcharge fallback format by reconstructing the full reference
-    if (referenceCode === 'directcharge' && event.queryStringParameters) {
-      const queryStr = Object.entries(event.queryStringParameters)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('&');
-      if (queryStr) {
-        referenceCode = `directcharge?${queryStr}`;
-        console.log('Reconstructed directcharge referenceCode:', referenceCode);
+    // Normalize legacy scheme hits like /baskets/payment?customInfo=REF...
+    if ((referenceCode === 'payment' || referenceCode === 'directcharge') && event.queryStringParameters) {
+      const qp = event.queryStringParameters;
+      const customInfo = qp.customInfo || qp.reference || qp.ref;
+      if (typeof customInfo === 'string' && customInfo.trim()) {
+        referenceCode = customInfo.trim();
+      } else if (referenceCode === 'directcharge') {
+        // Fall back to reconstructing the full directcharge reference
+        const queryStr = Object.entries(qp)
+          .map(([key, value]) => `${key}=${value}`)
+          .join('&');
+        if (queryStr) {
+          referenceCode = `directcharge?${queryStr}`;
+          console.log('Reconstructed directcharge referenceCode:', referenceCode);
+        }
       }
     }
 
