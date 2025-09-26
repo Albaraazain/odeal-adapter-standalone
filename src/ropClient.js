@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { log } from './logger.js';
 
 const ROP_BASE_URL = process.env.ROP_BASE_URL || 'http://test.ropapi.com/V6/App2App';
 const DEVICE_ID = process.env.DEVICE_ID;
@@ -23,8 +24,7 @@ function makeHttp() {
   }
   if (!isHttps) {
     // Allow http in non-prod, but warn
-    // eslint-disable-next-line no-console
-    console.warn('[WARN] ROP_BASE_URL is not HTTPS; use TLS in production');
+    log.warn('ROP_BASE_URL is not HTTPS; use TLS in production', { ROP_BASE_URL });
   }
   const instance = axios.create({
     timeout: Number(process.env.ROP_HTTP_TIMEOUT_MS || 5000),
@@ -46,7 +46,16 @@ async function getCheckDetail({ CheckId, CheckNo = 0, TableNo = '' }) {
 
   const url = `${ROP_BASE_URL}/CheckDetail`;
   // Although the Postman shows GET with body, we pass params in query.
+  const t0 = Date.now();
+  log.info('ROP CheckDetail → GET', {
+    url,
+    hasCreds: Boolean(DEVICE_ID && RESTAURANT_ID && DEVICE_KEY),
+    deviceId: DEVICE_ID,
+    restaurantId: RESTAURANT_ID,
+    checkId: params.CheckId,
+  });
   const { data } = await http.get(url, { params });
+  log.info('ROP CheckDetail ← OK', { ms: Date.now() - t0, checkId: params.CheckId });
   return data;
 }
 
@@ -71,7 +80,15 @@ async function postPaymentStatus({
     Customer: Customer || undefined,
     Invoice: Invoice || undefined,
   };
+  const t0 = Date.now();
+  log.info('ROP PaymentStatus → POST', {
+    url,
+    checkId: body.CheckId,
+    status: body.Status,
+    payments: Array.isArray(body.Payments) ? body.Payments.length : 0,
+  });
   const { data } = await http.post(url, body);
+  log.info('ROP PaymentStatus ← OK', { ms: Date.now() - t0, checkId: body.CheckId, status: body.Status });
   return data;
 }
 
