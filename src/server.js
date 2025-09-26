@@ -139,7 +139,13 @@ app.get('/app2app/baskets/:referenceCode', async (req, res) => {
       qp: Object.keys(req.query || {}),
     });
     const t0 = Date.now();
-    const basket = await resolveBasket(referenceCode);
+    // If mock provider is active, honor ?amount= for better parity with device request
+    let desiredTotal;
+    if (typeof req.query?.amount === 'string') {
+      const num = Number(req.query.amount);
+      if (!Number.isNaN(num) && num > 0) desiredTotal = num;
+    }
+    const basket = await resolveBasket(referenceCode, { desiredTotal });
     const dt = Date.now() - t0;
     if (String(process.env.ODEAL_DEBUG_PAYLOAD || '0') === '1') {
       try {

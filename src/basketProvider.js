@@ -41,24 +41,27 @@ function parseCheckId(referenceCode) {
   return checkId;
 }
 
-function mockBasket(referenceCode) {
+function mockBasket(referenceCode, overrideTotal) {
+  const total = (typeof overrideTotal === 'number' && !Number.isNaN(overrideTotal) && overrideTotal > 0)
+    ? Number(overrideTotal.toFixed(2))
+    : DEFAULT_TOTAL;
   return {
     referenceCode,
-    basketPrice: { grossPrice: DEFAULT_TOTAL },
+    basketPrice: { grossPrice: total },
     products: [
       {
         referenceCode: 'ITEM-TEST',
         name: 'Test Product',
         quantity: 1,
         unitCode: 'ADET',
-        price: { grossPrice: DEFAULT_TOTAL, vatRatio: 0, sctRatio: 0 },
+        price: { grossPrice: total, vatRatio: 0, sctRatio: 0 },
       },
     ],
     customerInfo: {},
     employeeInfo: EMP_REF ? { employeeReferenceCode: EMP_REF } : {},
     receiptInfo: {},
     customInfo: null,
-    paymentOptions: [{ type: 'CREDITCARD', amount: DEFAULT_TOTAL }],
+    paymentOptions: [{ type: 'CREDITCARD', amount: total }],
   };
 }
 
@@ -96,10 +99,13 @@ function ropLinesToBasket(referenceCode, rop) {
   return basket;
 }
 
-async function resolveBasket(referenceCode) {
+async function resolveBasket(referenceCode, opts = {}) {
+  const desiredTotal = typeof opts.desiredTotal === 'number' && !Number.isNaN(opts.desiredTotal)
+    ? opts.desiredTotal
+    : undefined;
   if (PROVIDER !== 'rop') {
-    log.info('resolveBasket: using mock provider', { referenceCode, provider: PROVIDER });
-    const b = mockBasket(referenceCode);
+    log.info('resolveBasket: using mock provider', { referenceCode, provider: PROVIDER, desiredTotal });
+    const b = mockBasket(referenceCode, desiredTotal);
     log.info('resolveBasket: mock basket built', {
       referenceCode: b.referenceCode,
       total: b.basketPrice?.grossPrice,
@@ -110,8 +116,8 @@ async function resolveBasket(referenceCode) {
   }
   const checkId = parseCheckId(referenceCode);
   if (!checkId) {
-    log.info('resolveBasket: mock due to missing checkId', { referenceCode });
-    return mockBasket(referenceCode);
+    log.info('resolveBasket: mock due to missing checkId', { referenceCode, desiredTotal });
+    return mockBasket(referenceCode, desiredTotal);
   }
   try {
     // Import ROP client only when in ROP mode
