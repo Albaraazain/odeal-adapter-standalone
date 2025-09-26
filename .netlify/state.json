@@ -1,0 +1,21 @@
+{
+	"geolocation": {
+		"data": {
+			"city": "Istanbul",
+			"country": {
+				"code": "TR",
+				"name": "Türkiye"
+			},
+			"subdivision": {
+				"code": "34",
+				"name": "Istanbul"
+			},
+			"timezone": "Europe/Istanbul",
+			"latitude": 41.0329,
+			"longitude": 28.9529,
+			"postalCode": "34080"
+		},
+		"timestamp": 1758491029243
+	},
+	"siteId": "0f62449b-630a-441d-b967-b506904ecec8"
+}

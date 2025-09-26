@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../Users/albaraa/Developer/Projects/rop_version_1/odeal_adapter/netlify/functions/health.js"],
+  "sourceRoot": "/private/var/folders/83/2hd7bwjn6dbf0zb4j1wg54zr0000gn/T/tmp-12654-nRhvcO6lJixL",
+  "sourcesContent": ["import { verifyOdeal } from '../../api/_lib/verify.js';\n\nexport async function handler(event, context) {\n  try {\n    return {\n      statusCode: 200,\n      headers: {\n        'Content-Type': 'application/json',\n        'Access-Control-Allow-Origin': '*',\n        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-ODEAL-REQUEST-KEY',\n        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'\n      },\n      body: JSON.stringify({\n        ok: true,\n        ts: new Date().toISOString(),\n        platform: 'netlify'\n      })\n    };\n  } catch (error) {\n    return {\n      statusCode: 500,\n      headers: {\n        'Content-Type': 'application/json',\n        'Access-Control-Allow-Origin': '*'\n      },\n      body: JSON.stringify({\n        error: 'Health check failed',\n        detail: error.message\n      })\n    };\n  }\n}"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAEA,eAAsB,QAAQ,OAAO,SAAS;AAC5C,MAAI;AACF,WAAO;AAAA,MACL,YAAY;AAAA,MACZ,SAAS;AAAA,QACP,gBAAgB;AAAA,QAChB,+BAA+B;AAAA,QAC/B,gCAAgC;AAAA,QAChC,gCAAgC;AAAA,MAClC;AAAA,MACA,MAAM,KAAK,UAAU;AAAA,QACnB,IAAI;AAAA,QACJ,KAAI,oBAAI,KAAK,GAAE,YAAY;AAAA,QAC3B,UAAU;AAAA,MACZ,CAAC;AAAA,IACH;AAAA,EACF,SAAS,OAAO;AACd,WAAO;AAAA,MACL,YAAY;AAAA,MACZ,SAAS;AAAA,QACP,gBAAgB;AAAA,QAChB,+BAA+B;AAAA,MACjC;AAAA,MACA,MAAM,KAAK,UAAU;AAAA,QACnB,OAAO;AAAA,QACP,QAAQ,MAAM;AAAA,MAChB,CAAC;AAAA,IACH;AAAA,EACF;AACF;",
+  "names": []
+}

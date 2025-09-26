@@ -1,0 +1,42 @@
+{
+  "name": "odeal-adapter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local Node adapter for Ödeal App-to-App basket + webhooks for ROP integration",
+  "main": "src/server.js",
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:integration": "jest __tests__/integration/",
+    "test:unit": "jest __tests__/unit/",
+    "test:performance": "jest __tests__/performance/",
+    "test:e2e": "jest __tests__/e2e/",
+    "config:register": "node scripts/register-odeal-config.cjs",
+    "config:verify": "node scripts/verify-odeal-config.cjs"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
+    "nodemon": "^3.1.0",
+    "supertest": "^6.3.3",
+    "uuid": "^9.0.1"
+  }
+}

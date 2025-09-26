@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-09-24T18:11:14.239Z",
+  "status": "FAILURE",
+  "statusCode": 401,
+  "configuration": {
+    "basketType": "EXTERNAL_BASKET_WITH_APP",
+    "basketUrl": "https://odeal-adapter-standalone.onrender.com/app2app/baskets",
+    "intentUrl": "https://odeal-adapter-standalone.onrender.com/odeal/a2a-result",
+    "paymentSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-succeeded",
+    "paymentFailedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-failed",
+    "paymentCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-cancelled",
+    "odealRequestKey": "test_key_for_development"
+  },
+  "response": "{\"code\":10003,\"exceptionType\":\"PARAMETER_VALIDATION\",\"message\":\"Unauthorized access\"}",
+  "headers": {
+    "server": "nginx",
+    "date": "Wed, 24 Sep 2025 18:11:14 GMT",
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+    "x-kong-request-id": "bb47762fbc1b2c21b7c0065adc912430",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "x-content-type-options": "nosniff"
+  }
+}
