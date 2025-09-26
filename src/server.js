@@ -141,6 +141,23 @@ app.get('/app2app/baskets/:referenceCode', async (req, res) => {
     const t0 = Date.now();
     const basket = await resolveBasket(referenceCode);
     const dt = Date.now() - t0;
+    if (String(process.env.ODEAL_DEBUG_PAYLOAD || '0') === '1') {
+      try {
+        const sample = {
+          referenceCode: basket?.referenceCode,
+          basketPrice: { grossPrice: basket?.basketPrice?.grossPrice },
+          productsCount: Array.isArray(basket?.products) ? basket.products.length : 0,
+          employeeInfo: basket?.employeeInfo ? {
+            employeeReferenceCodePrefix: String(basket.employeeInfo.employeeReferenceCode || '').slice(0, 4),
+            present: true,
+          } : { present: false },
+          paymentOptions: Array.isArray(basket?.paymentOptions) ? basket.paymentOptions.map(p => p?.type) : [],
+        };
+        log.debug('Basket payload (sanitized)', { rid, sample });
+      } catch (_) {
+        // ignore logging errors
+      }
+    }
     log.info('Basket response', {
       rid,
       ref: basket?.referenceCode,
