@@ -7,6 +7,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { resolveBasket, extractCheckId } from './basketProvider.js';
 import { makeEventKey, isDuplicate, remember } from './idempotencyStore.js';
 import { postPaymentStatus } from './ropClient.js';
+import { refMap } from './refMap.js';
 import { log } from './logger.js';
 
 const app = express();
@@ -14,6 +15,8 @@ const PORT = Number(process.env.PORT || 8787);
 const ODEAL_REQUEST_KEY = process.env.ODEAL_REQUEST_KEY;
 const ROUTE_ROP_AUTOSYNC = String(process.env.ROUTE_ROP_AUTOSYNC || 'false').toLowerCase() === 'true';
 const EMP_REF_SET = Boolean(process.env.ODEAL_EMPLOYEE_REF || process.env.ODEAL_EMPLOYEE_CODE);
+const REF_MAP_KEY = process.env.REF_MAP_KEY || '';
+const REF_MAP_ENABLED = String(process.env.REF_MAP_ENABLED || 'true').toLowerCase() === 'true';
 
 if (!ODEAL_REQUEST_KEY) {
   log.warn('ODEAL_REQUEST_KEY is not set; requests will be unauthorized');
@@ -93,6 +96,39 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, ts: new Date().toISOString() });
 });
 
+// Register UUID -> CheckId mapping from device/app
+app.post('/app2app/refs', (req, res) => {
+  try {
+    const rid = res.locals.rid;
+    if (!REF_MAP_ENABLED) {
+      log.warn('RefMap disabled', { rid });
+      return res.status(404).json({ error: 'disabled' });
+    }
+    if (REF_MAP_KEY) {
+      const provided = req.get('X-ROP-ADAPTER-KEY') || '';
+      if (!provided || provided !== REF_MAP_KEY) {
+        log.warn('RefMap auth failed', { rid });
+        return res.status(401).json({ error: 'unauthorized' });
+      }
+    }
+    const body = req.body || {};
+    const ref = String(body.referenceCode || body.ref || '').trim();
+    const checkId = Number(body.checkId || body.CheckId || 0);
+    const ttlSec = Number(body.ttlSeconds || 0);
+    if (!ref || !checkId || Number.isNaN(checkId)) {
+      log.warn('RefMap invalid payload', { rid, hasRef: Boolean(ref), checkId });
+      return res.status(400).json({ error: 'invalid_payload' });
+    }
+    const ttlMs = ttlSec > 0 ? ttlSec * 1000 : undefined;
+    refMap.set(ref, checkId, ttlMs);
+    log.info('RefMap set', { rid, refPrefix: ref.substring(0, 8), checkId, ttlMs: ttlMs ?? 'default' });
+    return res.json({ ok: true });
+  } catch (e) {
+    log.error('RefMap error', { error: String(e?.message || e) });
+    return res.status(500).json({ error: 'server_error' });
+  }
+});
+
 app.get('/api/app2app/baskets/:referenceCode', async (req, res) => {
   // Reuse the same handler logic as non-/api route by delegating to Express
   req.url = req.url.replace(/^\/api/, '');
@@ -145,7 +181,18 @@ app.get('/app2app/baskets/:referenceCode', async (req, res) => {
       const num = Number(req.query.amount);
       if (!Number.isNaN(num) && num > 0) desiredTotal = num;
     }
-    const basket = await resolveBasket(referenceCode, { desiredTotal });
+    // If provider needs a CheckId and reference lacks digits, try lookup
+    let effectiveRef = referenceCode;
+    if (/\d+$/.test(referenceCode) === false) {
+      const mapped = refMap.get(referenceCode);
+      if (mapped) {
+        effectiveRef = `${referenceCode}_${mapped}`;
+        log.info('RefMap hit', { rid, refPrefix: referenceCode.substring(0, 8), checkId: mapped, effectiveRef });
+      } else {
+        log.debug('RefMap miss', { rid, refPrefix: referenceCode.substring(0, 8) });
+      }
+    }
+    const basket = await resolveBasket(effectiveRef, { desiredTotal });
     const dt = Date.now() - t0;
     if (String(process.env.ODEAL_DEBUG_PAYLOAD || '0') === '1') {
       try {
