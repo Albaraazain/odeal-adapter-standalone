@@ -59,6 +59,31 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, ts: new Date().toISOString() });
 });
 
+// Compatibility aliases for legacy serverless paths (no Vercel/Netlify now)
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, ts: new Date().toISOString() });
+});
+
+app.get('/api/app2app/baskets/:referenceCode', async (req, res) => {
+  // Reuse the same handler logic as non-/api route by delegating to Express
+  req.url = req.url.replace(/^\/api/, '');
+  // Call the underlying route stack
+  return app._router.handle(req, res, () => res.status(404).end());
+});
+
+app.post('/api/webhooks/odeal/payment-succeeded', (req, res) => {
+  req.url = req.url.replace(/^\/api/, '');
+  return app._router.handle(req, res, () => res.status(404).end());
+});
+app.post('/api/webhooks/odeal/payment-failed', (req, res) => {
+  req.url = req.url.replace(/^\/api/, '');
+  return app._router.handle(req, res, () => res.status(404).end());
+});
+app.post('/api/webhooks/odeal/payment-cancelled', (req, res) => {
+  req.url = req.url.replace(/^\/api/, '');
+  return app._router.handle(req, res, () => res.status(404).end());
+});
+
 // Basket fetch – Ödeal calls this with the referenceCode
 app.get('/app2app/baskets/:referenceCode', async (req, res) => {
   if (!verifyOdeal(req, res)) return;

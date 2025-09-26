@@ -1,1 +1,0 @@
-module.exports = require('./netlify/functions/app2app-baskets.js')
