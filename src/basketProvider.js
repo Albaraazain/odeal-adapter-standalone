@@ -1,6 +1,7 @@
 // Import ROP client only when needed to avoid HTTPS validation in mock mode
 
 import { log } from './logger.js';
+const { buildBasket, buildMock, BasketValidationError } = require('./basketBuilder.js');
 
 const PROVIDER = (process.env.BASKET_PROVIDER || 'mock').toLowerCase();
 const DEFAULT_TOTAL = Number(process.env.BASKET_DEFAULT_TOTAL || '100.00');
@@ -42,61 +43,50 @@ function parseCheckId(referenceCode) {
 }
 
 function mockBasket(referenceCode, overrideTotal) {
-  const total = (typeof overrideTotal === 'number' && !Number.isNaN(overrideTotal) && overrideTotal > 0)
-    ? Number(overrideTotal.toFixed(2))
-    : DEFAULT_TOTAL;
-  return {
-    referenceCode,
-    basketPrice: { grossPrice: total },
-    products: [
-      {
-        referenceCode: 'ITEM-TEST',
-        name: 'Test Product',
-        quantity: 1,
-        unitCode: 'ADET',
-        price: { grossPrice: total, vatRatio: 0, sctRatio: 0 },
-      },
-    ],
-    customerInfo: {},
-    employeeInfo: EMP_REF ? { employeeReferenceCode: EMP_REF } : {},
-    receiptInfo: {},
-    customInfo: null,
-    paymentOptions: [{ type: 'CREDITCARD', amount: total }],
-  };
+  try {
+    return buildMock({ referenceCode, total: overrideTotal != null ? Number(overrideTotal) : DEFAULT_TOTAL, employeeRef: EMP_REF || undefined });
+  } catch (e) {
+    if (e instanceof BasketValidationError) {
+      log.error('mockBasket validation failed', { error: e.message });
+    } else {
+      log.error('mockBasket error', { error: String(e?.message || e) });
+    }
+    // Fall back to a minimal permissive shape
+    return {
+      referenceCode,
+      basketPrice: { grossPrice: DEFAULT_TOTAL },
+      products: [{ referenceCode: 'ITEM-TEST', name: 'Test Product', quantity: 1, unitCode: 'ADET', price: { grossPrice: DEFAULT_TOTAL, vatRatio: 0, sctRatio: 0 } }],
+      customerInfo: {},
+      employeeInfo: EMP_REF ? { employeeReferenceCode: EMP_REF } : {},
+      receiptInfo: {},
+      customInfo: null,
+      paymentOptions: [{ type: 'CREDITCARD', amount: DEFAULT_TOTAL }],
+    };
+  }
 }
 
 function ropLinesToBasket(referenceCode, rop) {
-  // Attempt to map common fields; fall back to mock if structure differs.
   const lines = rop?.Details || rop?.Lines || rop?.items || [];
-  let products = [];
+  const items = [];
   for (const l of lines) {
     const name = l.Name || l.name || l.ItemName || 'Item';
     const qty = Number(l.Quantity ?? l.qty ?? l.Qty ?? 1);
     const gross = Number(l.Total ?? l.Gross ?? l.Price ?? 0);
     const unitGross = gross && qty ? gross / qty : Number(l.Price || 0);
     const sku = l.Code || l.Sku || l.ItemCode || name;
-    products.push({
-      referenceCode: String(sku),
-      name: String(name),
-      quantity: qty,
-      unitCode: 'ADET',
-      price: { grossPrice: Number(unitGross.toFixed(2)), vatRatio: 0, sctRatio: 0 },
-    });
+    items.push({ referenceCode: String(sku), name: String(name), quantity: qty, unitCode: 'ADET', unitGross: Number(unitGross.toFixed(2)), vatRatio: 0, sctRatio: 0 });
   }
-  if (!products.length) return mockBasket(referenceCode);
-
-  const total = products.reduce((s, p) => s + p.price.grossPrice * p.quantity, 0);
-  const basket = {
-    referenceCode,
-    basketPrice: { grossPrice: Number(total.toFixed(2)) },
-    products,
-    customerInfo: {},
-    employeeInfo: EMP_REF ? { employeeReferenceCode: EMP_REF } : {},
-    receiptInfo: {},
-    customInfo: null,
-    paymentOptions: [{ type: 'CREDITCARD', amount: Number(total.toFixed(2)) }],
-  };
-  return basket;
+  if (!items.length) return mockBasket(referenceCode);
+  try {
+    return buildBasket({ referenceCode, items, employeeRef: EMP_REF || undefined });
+  } catch (e) {
+    if (e instanceof BasketValidationError) {
+      log.error('ROP basket validation failed', { error: e.message });
+    } else {
+      log.error('ROP basket build error', { error: String(e?.message || e) });
+    }
+    return mockBasket(referenceCode);
+  }
 }
 
 async function resolveBasket(referenceCode, opts = {}) {

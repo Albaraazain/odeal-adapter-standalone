@@ -222,8 +222,24 @@ app.get('/app2app/baskets/:referenceCode', async (req, res) => {
     });
     res.json(basket);
   } catch (e) {
-    log.error('Basket resolution error', { rid: res.locals.rid, error: String(e?.message || e) });
-    res.status(500).json({ error: 'Basket resolution error', detail: String(e?.message || e) });
+    const msg = String(e?.message || e);
+    const rid = res.locals.rid;
+    if (msg && (
+      msg.includes('basket_missing') ||
+      msg.includes('reference_code_missing') ||
+      msg.includes('products_missing') ||
+      msg.includes('product_fields_missing') ||
+      msg.includes('product_quantity_invalid') ||
+      msg.includes('product_price_invalid') ||
+      msg.includes('basket_price_missing') ||
+      msg.includes('payment_options_missing') ||
+      msg.includes('employee_reference_missing'))
+    ) {
+      log.warn('Basket validation error', { rid, error: msg });
+      return res.status(422).json({ error: 'basket_validation_error', detail: msg });
+    }
+    log.error('Basket resolution error', { rid, error: msg });
+    res.status(500).json({ error: 'Basket resolution error', detail: msg });
   }
 });
 
