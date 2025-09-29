@@ -27,19 +27,13 @@ function envEmployeeInfo() {
 // Build customerInfo from environment variables when provided.
 // Returns {} when no relevant env vars are set to preserve existing behavior in tests/dev.
 function envCustomerInfo() {
-  const tckn = process.env.ODEAL_CUSTOMER_TCKN;
-  const vkn = process.env.ODEAL_CUSTOMER_VKN;
-  const name = process.env.ODEAL_CUSTOMER_NAME;
-  const address = process.env.ODEAL_CUSTOMER_ADDRESS;
-
-  const anyProvided = [tckn, vkn, name, address].some(v => v != null && String(v).trim() !== '');
-  if (!anyProvided) return {};
-
+  // Hardcoded per request to satisfy fiscal app requirements
+  // name: Cenk, surname: Üner, identityNumber (TCKN): 15808969220
   return {
-    tcKimlikNo: tckn ? String(tckn) : '',
-    name: (name && String(name).trim() !== '') ? String(name) : 'End Consumer',
-    vergiKimlikNo: vkn ? String(vkn) : '',
-    address: address ? String(address) : '',
+    type: 'INDIVIDUAL',
+    name: 'Cenk',
+    surname: 'Üner',
+    identityNumber: '15808969220',
   };
 }
 
@@ -52,36 +46,15 @@ function envCustomerInfo() {
 // - taxOffice, taxNumber (VKN), identityNumber (TCKN)
 // - gsmNumber, email, city, town, address
 function envOdealCustomer() {
-  const cfg = {
-    referenceCode: process.env.ODEAL_CUSTOMER_REFERENCE_CODE,
-    type: process.env.ODEAL_CUSTOMER_TYPE,
-    title: process.env.ODEAL_CUSTOMER_TITLE,
-    name: process.env.ODEAL_CUSTOMER_NAME,
-    surname: process.env.ODEAL_CUSTOMER_SURNAME,
-    taxOffice: process.env.ODEAL_CUSTOMER_TAX_OFFICE,
-    taxNumber: process.env.ODEAL_CUSTOMER_TAX_NUMBER,
-    identityNumber: process.env.ODEAL_CUSTOMER_IDENTITY_NUMBER || process.env.ODEAL_CUSTOMER_TCKN,
-    gsmNumber: process.env.ODEAL_CUSTOMER_GSM_NUMBER,
-    email: process.env.ODEAL_CUSTOMER_EMAIL,
-    city: process.env.ODEAL_CUSTOMER_CITY,
-    town: process.env.ODEAL_CUSTOMER_TOWN,
-    address: process.env.ODEAL_CUSTOMER_ADDRESS,
+  // Keep customer (doc-shaped) aligned as well for device UX
+  return {
+    referenceCode: 'CENK-UNER-REF',
+    type: 'PERSON',
+    title: 'Cenk Üner',
+    name: 'Cenk',
+    surname: 'Üner',
+    identityNumber: '15808969220',
   };
-
-  // If nothing meaningful is provided, return empty to omit from basket
-  const provided = Object.values(cfg).some(v => v != null && String(v).trim() !== '');
-  if (!provided) return {};
-
-  // Minimal defaults if partially provided
-  if (!cfg.type) cfg.type = 'PERSON';
-  if (!cfg.title) cfg.title = (cfg.name || cfg.surname) ? `${cfg.name || ''} ${cfg.surname || ''}`.trim() : 'End Consumer';
-
-  // Remove empty fields
-  const out = {};
-  for (const [k, v] of Object.entries(cfg)) {
-    if (v != null && String(v).trim() !== '') out[k] = String(v);
-  }
-  return out;
 }
 
 function parseCheckId(referenceCode) {

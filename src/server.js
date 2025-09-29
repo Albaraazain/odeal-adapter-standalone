@@ -272,6 +272,7 @@ app.get('/app2app/baskets/:referenceCode', async (req, res) => {
             employeeReferenceCodePrefix: String(basket.employeeInfo.employeeReferenceCode || '').slice(0, 4),
             present: true,
           } : { present: false },
+          customerInfoPresent: Boolean(basket?.customerInfo && Object.keys(basket.customerInfo).length),
           customerPresent: Boolean(basket?.customer && Object.keys(basket.customer).length),
           paymentOptions: Array.isArray(basket?.paymentOptions) ? basket.paymentOptions.map(p => p?.type) : [],
         };
