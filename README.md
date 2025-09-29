@@ -58,6 +58,15 @@ Environment Variables
 - `BASKET_PROVIDER` (optional: `mock` | `rop`, default `mock`)
 - `BASKET_DEFAULT_TOTAL` (optional, default `100.00`) – used by `mock` provider.
 
+Employee Info (employeeInfo)
+- `ODEAL_EMPLOYEE_REF` – maps to `employeeInfo.employeeReferenceCode` (required in production)
+- `ODEAL_EMPLOYEE_NAME` – maps to `employeeInfo.name` (optional)
+- `ODEAL_EMPLOYEE_SURNAME` – maps to `employeeInfo.surname` (optional)
+- `ODEAL_EMPLOYEE_GSM_NUMBER` – maps to `employeeInfo.gsmNumber` (optional)
+- `ODEAL_EMPLOYEE_IDENTITY_NUMBER` – maps to `employeeInfo.identityNumber` (optional)
+- `ODEAL_EMPLOYEE_MAIL_ADDRESS` – maps to `employeeInfo.mailAddress` (optional)
+- `ODEAL_REQUIRE_EMPLOYEE` – default `true`; when `true`, baskets must include `employeeReferenceCode`. In mock mode, the adapter will fall back to a permissive payload if not set.
+
 When using provider = rop, set:
 - `ROP_BASE_URL` (default `http://test.ropapi.com/V6/App2App`)
 - `DEVICE_ID` – your device serial (e.g., from `ro.epay.serial`)
@@ -75,6 +84,18 @@ Endpoint Shapes
 GET /app2app/baskets/:referenceCode
 - Headers: `X-ODEAL-REQUEST-KEY: <uuid>`
 - Returns Ödeal basket JSON.
+
+Employee Info shape (embedded in basket)
+```
+employeeInfo: {
+  employeeReferenceCode: "EMP001",   // required in production
+  name: "Ahmet",                      // optional
+  surname: "Yilmaz",                  // optional
+  gsmNumber: "905551112233",          // optional
+  identityNumber: "12345678901",      // optional
+  mailAddress: "ahmet.yilmaz@example.com" // optional
+}
+```
 
 POST /webhooks/odeal/payment-succeeded|failed|cancelled (or `/api/...` on Vercel)
 - Headers: `X-ODEAL-REQUEST-KEY: <uuid>`

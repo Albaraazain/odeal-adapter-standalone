@@ -1,11 +1,28 @@
 // Import ROP client only when needed to avoid HTTPS validation in mock mode
 
 import { log } from './logger.js';
-const { buildBasket, buildMock, BasketValidationError } = require('./basketBuilder.js');
+import { buildBasket, buildMock, BasketValidationError } from './basketBuilder.js';
 
 const PROVIDER = (process.env.BASKET_PROVIDER || 'mock').toLowerCase();
 const DEFAULT_TOTAL = Number(process.env.BASKET_DEFAULT_TOTAL || '100.00');
 const EMP_REF = process.env.ODEAL_EMPLOYEE_REF || process.env.ODEAL_EMPLOYEE_CODE || '';
+
+function envEmployeeInfo() {
+  const ref = process.env.ODEAL_EMPLOYEE_REF || process.env.ODEAL_EMPLOYEE_CODE || '';
+  const name = process.env.ODEAL_EMPLOYEE_NAME || '';
+  const surname = process.env.ODEAL_EMPLOYEE_SURNAME || '';
+  const gsmNumber = process.env.ODEAL_EMPLOYEE_GSM_NUMBER || '';
+  const identityNumber = process.env.ODEAL_EMPLOYEE_IDENTITY_NUMBER || '';
+  const mailAddress = process.env.ODEAL_EMPLOYEE_MAIL_ADDRESS || '';
+  const info = {};
+  if (ref) info.employeeReferenceCode = String(ref);
+  if (name) info.name = String(name);
+  if (surname) info.surname = String(surname);
+  if (gsmNumber) info.gsmNumber = String(gsmNumber);
+  if (identityNumber) info.identityNumber = String(identityNumber);
+  if (mailAddress) info.mailAddress = String(mailAddress);
+  return info;
+}
 
 function parseCheckId(referenceCode) {
   // Accept formats like ROP_3215799, CHECK_123, trailing digits, and directcharge fallback
@@ -44,7 +61,12 @@ function parseCheckId(referenceCode) {
 
 function mockBasket(referenceCode, overrideTotal) {
   try {
-    return buildMock({ referenceCode, total: overrideTotal != null ? Number(overrideTotal) : DEFAULT_TOTAL, employeeRef: EMP_REF || undefined });
+    return buildMock({
+      referenceCode,
+      total: overrideTotal != null ? Number(overrideTotal) : DEFAULT_TOTAL,
+      employeeInfo: envEmployeeInfo(),
+      employeeRef: EMP_REF || undefined,
+    });
   } catch (e) {
     if (e instanceof BasketValidationError) {
       log.error('mockBasket validation failed', { error: e.message });
@@ -57,7 +79,9 @@ function mockBasket(referenceCode, overrideTotal) {
       basketPrice: { grossPrice: DEFAULT_TOTAL },
       products: [{ referenceCode: 'ITEM-TEST', name: 'Test Product', quantity: 1, unitCode: 'ADET', price: { grossPrice: DEFAULT_TOTAL, vatRatio: 0, sctRatio: 0 } }],
       customerInfo: {},
-      employeeInfo: EMP_REF ? { employeeReferenceCode: EMP_REF } : {},
+      employeeInfo: (Object.keys(envEmployeeInfo()).length)
+        ? envEmployeeInfo()
+        : (EMP_REF ? { employeeReferenceCode: EMP_REF } : {}),
       receiptInfo: {},
       customInfo: null,
       paymentOptions: [{ type: 'CREDITCARD', amount: DEFAULT_TOTAL }],
@@ -78,7 +102,7 @@ function ropLinesToBasket(referenceCode, rop) {
   }
   if (!items.length) return mockBasket(referenceCode);
   try {
-    return buildBasket({ referenceCode, items, employeeRef: EMP_REF || undefined });
+    return buildBasket({ referenceCode, items, employeeRef: EMP_REF || undefined, employeeInfo: envEmployeeInfo() });
   } catch (e) {
     if (e instanceof BasketValidationError) {
       log.error('ROP basket validation failed', { error: e.message });
@@ -100,7 +124,7 @@ async function resolveBasket(referenceCode, opts = {}) {
       referenceCode: b.referenceCode,
       total: b.basketPrice?.grossPrice,
       products: b.products?.length,
-      employeeInfoPresent: Boolean(EMP_REF),
+      employeeInfoPresent: Boolean(envEmployeeInfo().employeeReferenceCode || Object.keys(envEmployeeInfo()).length),
     });
     return b;
   }
@@ -121,7 +145,7 @@ async function resolveBasket(referenceCode, opts = {}) {
       referenceCode: basket.referenceCode,
       total: basket.basketPrice?.grossPrice,
       products: basket.products?.length,
-      employeeInfoPresent: Boolean(EMP_REF),
+      employeeInfoPresent: Boolean(envEmployeeInfo().employeeReferenceCode || Object.keys(envEmployeeInfo()).length),
     });
     return basket;
   } catch (e) {

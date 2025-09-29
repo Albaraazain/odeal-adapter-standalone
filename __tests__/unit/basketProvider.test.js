@@ -6,7 +6,10 @@ jest.mock('../../src/ropClient.js', () => ({
   getCheckDetail: jest.fn()
 }));
 
-const { getCheckDetail } = await import('../../src/ropClient.js');
+let getCheckDetail;
+beforeAll(async () => {
+  ({ getCheckDetail } = await import('../../src/ropClient.js'));
+});
 
 describe('BasketProvider', () => {
   let originalEnv;
@@ -50,10 +53,10 @@ describe('BasketProvider', () => {
   });
 
   describe('resolveBasket', () => {
-    test('should return mock basket when provider is not ROP', () => {
+    test('should return mock basket when provider is not ROP', async () => {
       process.env.BASKET_PROVIDER = 'mock';
 
-      const result = resolveBasket('TEST_001');
+      const result = await resolveBasket('TEST_001');
 
       expect(result).toEqual({
         referenceCode: 'TEST_001',
@@ -222,22 +225,22 @@ describe('BasketProvider', () => {
   });
 
   describe('Default total configuration', () => {
-    test('should use default total from environment', () => {
+    test('should use default total from environment', async () => {
       process.env.BASKET_PROVIDER = 'mock';
       process.env.BASKET_DEFAULT_TOTAL = '200.50';
 
-      const result = resolveBasket('TEST_001');
+      const result = await resolveBasket('TEST_001');
 
       expect(result.basketPrice.grossPrice).toBe(200.50);
       expect(result.products[0].price.grossPrice).toBe(200.50);
       expect(result.paymentOptions[0].amount).toBe(200.50);
     });
 
-    test('should use fallback default total when not set', () => {
+    test('should use fallback default total when not set', async () => {
       process.env.BASKET_PROVIDER = 'mock';
       delete process.env.BASKET_DEFAULT_TOTAL;
 
-      const result = resolveBasket('TEST_001');
+      const result = await resolveBasket('TEST_001');
 
       expect(result.basketPrice.grossPrice).toBe(100.00);
     });

@@ -17,3 +17,18 @@ services:
         value: false
       - key: ODEAL_REQUEST_KEY
         sync: false  # This will need to be set manually in Render dashboard
+      # Employee Info (Ödeal employeeInfo structure)
+      - key: ODEAL_EMPLOYEE_REF
+        sync: false
+      - key: ODEAL_EMPLOYEE_NAME
+        sync: false
+      - key: ODEAL_EMPLOYEE_SURNAME
+        sync: false
+      - key: ODEAL_EMPLOYEE_GSM_NUMBER
+        sync: false
+      - key: ODEAL_EMPLOYEE_IDENTITY_NUMBER
+        sync: false
+      - key: ODEAL_EMPLOYEE_MAIL_ADDRESS
+        sync: false
+      - key: ODEAL_REQUIRE_EMPLOYEE
+        value: true

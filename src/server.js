@@ -14,7 +14,15 @@ const app = express();
 const PORT = Number(process.env.PORT || 8787);
 const ODEAL_REQUEST_KEY = process.env.ODEAL_REQUEST_KEY;
 const ROUTE_ROP_AUTOSYNC = String(process.env.ROUTE_ROP_AUTOSYNC || 'false').toLowerCase() === 'true';
-const EMP_REF_SET = Boolean(process.env.ODEAL_EMPLOYEE_REF || process.env.ODEAL_EMPLOYEE_CODE);
+const EMP_REF_SET = Boolean(
+  process.env.ODEAL_EMPLOYEE_REF ||
+  process.env.ODEAL_EMPLOYEE_CODE ||
+  process.env.ODEAL_EMPLOYEE_NAME ||
+  process.env.ODEAL_EMPLOYEE_SURNAME ||
+  process.env.ODEAL_EMPLOYEE_GSM_NUMBER ||
+  process.env.ODEAL_EMPLOYEE_IDENTITY_NUMBER ||
+  process.env.ODEAL_EMPLOYEE_MAIL_ADDRESS
+);
 const REF_MAP_KEY = process.env.REF_MAP_KEY || '';
 const REF_MAP_ENABLED = String(process.env.REF_MAP_ENABLED || 'true').toLowerCase() === 'true';
 

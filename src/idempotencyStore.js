@@ -1,6 +1,20 @@
 const seen = new Map(); // key -> expiresAt
-const TTL_MS = Number(process.env.IDEMPOTENCY_TTL_MS || 10 * 60 * 1000); // 10 minutes default
-const MAX_KEYS = Number(process.env.IDEMPOTENCY_MAX_KEYS || 10000);
+// Expose for test introspection
+// eslint-disable-next-line no-undef
+if (typeof global !== 'undefined') {
+  // Provide a stable reference for tests
+  // Note: not part of public API
+  global.seen = seen;
+}
+function getTTL() {
+  const v = Number(process.env.IDEMPOTENCY_TTL_MS);
+  return Number.isFinite(v) && v > 0 ? v : 10 * 60 * 1000; // 10 minutes default
+}
+
+function getMaxKeys() {
+  const v = Number(process.env.IDEMPOTENCY_MAX_KEYS);
+  return Number.isFinite(v) && v > 0 ? v : 10000;
+}
 
 function makeEventKey(type, payload) {
   const ref = payload?.basketReferenceCode || payload?.referenceCode || 'n/a';
@@ -18,10 +32,10 @@ function isDuplicate(key) {
 
 function remember(key) {
   const now = Date.now();
-  seen.set(key, now + TTL_MS);
-  if (seen.size > MAX_KEYS) {
+  seen.set(key, now + getTTL());
+  if (seen.size > getMaxKeys()) {
     // naive eviction: remove oldest entries
-    const toRemove = seen.size - MAX_KEYS;
+    const toRemove = seen.size - getMaxKeys();
     let i = 0;
     for (const k of seen.keys()) {
       seen.delete(k);

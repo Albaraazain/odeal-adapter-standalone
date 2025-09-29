@@ -3,7 +3,14 @@
 // - referenceCode (string)
 // - receiptInfo (object)
 // - customInfo (string|null)
-// - employeeInfo { employeeReferenceCode }
+// - employeeInfo {
+//     employeeReferenceCode,
+//     name?,
+//     surname?,
+//     identityNumber?,
+//     gsmNumber?,
+//     mailAddress? (nullable)
+//   }
 // - customerInfo (object)
 // - basketPrice { grossPrice }
 // - products [ { referenceCode, name, quantity, unitCode, price { grossPrice, vatRatio, sctRatio } } ]
@@ -20,6 +27,24 @@ class BasketValidationError extends Error {
 
 function round2(n) {
   return Math.round((Number(n) || 0) * 100) / 100;
+}
+
+function normalizeEmployeeInfo(employeeRef, employeeInfo) {
+  const src = employeeInfo && typeof employeeInfo === 'object' ? employeeInfo : {};
+  const code = src.employeeReferenceCode != null && String(src.employeeReferenceCode).trim() !== ''
+    ? String(src.employeeReferenceCode)
+    : (employeeRef != null && String(employeeRef).trim() !== '' ? String(employeeRef) : undefined);
+
+  if (!code) return {}; // no employee provided
+
+  return {
+    employeeReferenceCode: code,
+    name: src.name != null && String(src.name).trim() !== '' ? String(src.name) : null,
+    surname: src.surname != null && String(src.surname).trim() !== '' ? String(src.surname) : null,
+    identityNumber: src.identityNumber != null && String(src.identityNumber).trim() !== '' ? String(src.identityNumber) : null,
+    gsmNumber: src.gsmNumber != null && String(src.gsmNumber).trim() !== '' ? String(src.gsmNumber) : null,
+    mailAddress: src.mailAddress != null && String(src.mailAddress).trim() !== '' ? String(src.mailAddress) : null,
+  };
 }
 
 function validateBasketModel(b) {
@@ -41,14 +66,26 @@ function validateBasketModel(b) {
   if (!Array.isArray(b.paymentOptions) || b.paymentOptions.length === 0) {
     throw new BasketValidationError('payment_options_missing');
   }
+  // employee validation (new structure aware)
+  const ei = b.employeeInfo;
   if (REQUIRE_EMP) {
-    if (!b.employeeInfo || !b.employeeInfo.employeeReferenceCode) {
+    if (!ei || !ei.employeeReferenceCode || String(ei.employeeReferenceCode).trim() === '') {
       throw new BasketValidationError('employee_reference_missing');
     }
   }
+  if (ei && typeof ei === 'object' && Object.keys(ei).length) {
+    if (ei.employeeReferenceCode != null && typeof ei.employeeReferenceCode !== 'string') {
+      throw new BasketValidationError('employee_reference_invalid');
+    }
+    if (ei.name != null && typeof ei.name !== 'string') throw new BasketValidationError('employee_name_invalid');
+    if (ei.surname != null && typeof ei.surname !== 'string') throw new BasketValidationError('employee_surname_invalid');
+    if (ei.identityNumber != null && typeof ei.identityNumber !== 'string') throw new BasketValidationError('employee_identity_invalid');
+    if (ei.gsmNumber != null && typeof ei.gsmNumber !== 'string') throw new BasketValidationError('employee_gsm_invalid');
+    if (ei.mailAddress != null && typeof ei.mailAddress !== 'string') throw new BasketValidationError('employee_mail_invalid');
+  }
 }
 
-function buildBasket({ referenceCode, items, employeeRef, paymentAmount, customerInfo, receiptInfo, customInfo }) {
+function buildBasket({ referenceCode, items, employeeRef, employeeInfo, paymentAmount, customerInfo, receiptInfo, customInfo }) {
   if (!referenceCode) throw new BasketValidationError('reference_code_missing');
   const products = [];
   for (const it of items || []) {
@@ -72,7 +109,7 @@ function buildBasket({ referenceCode, items, employeeRef, paymentAmount, custome
     referenceCode,
     receiptInfo: receiptInfo || {},
     customInfo: customInfo ?? null,
-    employeeInfo: employeeRef ? { employeeReferenceCode: String(employeeRef) } : {},
+    employeeInfo: normalizeEmployeeInfo(employeeRef, employeeInfo),
     customerInfo: customerInfo || {},
     basketPrice: { grossPrice: total },
     products,
@@ -82,15 +119,15 @@ function buildBasket({ referenceCode, items, employeeRef, paymentAmount, custome
   return basket;
 }
 
-function buildMock({ referenceCode, total, employeeRef }) {
+function buildMock({ referenceCode, total, employeeRef, employeeInfo }) {
   const t = round2(total != null ? total : 100);
   return buildBasket({
     referenceCode,
     employeeRef,
+    employeeInfo,
     items: [{ referenceCode: 'ITEM-TEST', name: 'Test Product', quantity: 1, unitGross: t, vatRatio: 0, sctRatio: 0 }],
     paymentAmount: t,
   });
 }
 
-module.exports = { buildBasket, buildMock, BasketValidationError };
-
+export { buildBasket, buildMock, BasketValidationError };
