@@ -34,6 +34,14 @@ function envCustomerInfo() {
     name: 'Cenk',
     surname: 'Üner',
     identityNumber: '15808969220',
+    // City/town/address/email/gsm are required in some profiles
+    // See: API Reference → Veri Modelleri → Sepet Aktar (customer: city/town/address required)
+    // https://docs.odeal.com/reference/i%CC%87stek-limit-bilgisi
+    city: 'İstanbul',
+    town: 'Kadıköy',
+    address: 'Bahariye Cad. No:1 Kadıköy/İstanbul',
+    email: 'cenk.uner@example.com',
+    gsmNumber: '5551234567',
   };
 }
 
@@ -54,6 +62,12 @@ function envOdealCustomer() {
     name: 'Cenk',
     surname: 'Üner',
     identityNumber: '15808969220',
+    // Required fields per "Sepet Aktar → customer" when customer is present
+    email: 'cenk.uner@example.com',
+    gsmNumber: '5551234567',
+    city: 'İstanbul',
+    town: 'Kadıköy',
+    address: 'Bahariye Cad. No:1 Kadıköy/İstanbul',
   };
 }
 
