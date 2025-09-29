@@ -148,11 +148,12 @@ function ropLinesToBasket(referenceCode, rop) {
     const gross = Number(l.Total ?? l.Gross ?? l.Price ?? 0);
     const unitGross = gross && qty ? gross / qty : Number(l.Price || 0);
     const sku = l.Code || l.Sku || l.ItemCode || name;
+    const unitFromLine = l.Unit || l.unit || l.UnitCode || l.unitCode;
     items.push({
       referenceCode: String(sku),
       name: String(name),
       quantity: qty,
-      unitCode: process.env.ODEAL_DEFAULT_UNIT_CODE || 'C62',
+      unitCode: unitFromLine || process.env.ODEAL_DEFAULT_UNIT_CODE || 'C62',
       unitGross: Number(unitGross.toFixed(2)),
       vatRatio: 0,
       sctRatio: 0,
