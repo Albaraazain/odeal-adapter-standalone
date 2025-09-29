@@ -61,8 +61,7 @@ describe('basketProvider env → employeeInfo mapping', () => {
     });
   });
 
-  test('rop provider passes env employeeInfo through', async () => {
-    process.env.BASKET_PROVIDER = 'rop';
+  test('ropLinesToBasket uses env employeeInfo', async () => {
     process.env.ODEAL_REQUIRE_EMPLOYEE = 'true';
     process.env.ODEAL_EMPLOYEE_REF = 'musteri';
     process.env.ODEAL_EMPLOYEE_NAME = 'SambaPOS';
@@ -71,14 +70,11 @@ describe('basketProvider env → employeeInfo mapping', () => {
     process.env.ODEAL_EMPLOYEE_GSM_NUMBER = '5999999999';
 
     jest.resetModules();
-    const { resolveBasket } = await import('../../src/basketProvider.js');
+    const { ropLinesToBasket } = await import('../../src/basketProvider.js');
 
-    // Mock ROP response with one line
-    getCheckDetail.mockResolvedValue({
+    const basket = ropLinesToBasket('ROP_123', {
       Details: [ { Name: 'Line', Quantity: 1, Total: 10, Code: 'SKU' } ],
     });
-
-    const basket = await resolveBasket('ROP_123456');
     expect(basket.employeeInfo).toEqual({
       employeeReferenceCode: 'musteri',
       name: 'SambaPOS',

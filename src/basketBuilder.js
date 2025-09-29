@@ -119,12 +119,13 @@ function buildBasket({ referenceCode, items, employeeRef, employeeInfo, paymentA
   return basket;
 }
 
-function buildMock({ referenceCode, total, employeeRef, employeeInfo }) {
+function buildMock({ referenceCode, total, employeeRef, employeeInfo, customerInfo }) {
   const t = round2(total != null ? total : 100);
   return buildBasket({
     referenceCode,
     employeeRef,
     employeeInfo,
+    customerInfo,
     items: [{ referenceCode: 'ITEM-TEST', name: 'Test Product', quantity: 1, unitGross: t, vatRatio: 0, sctRatio: 0 }],
     paymentAmount: t,
   });

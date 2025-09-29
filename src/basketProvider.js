@@ -24,6 +24,25 @@ function envEmployeeInfo() {
   return info;
 }
 
+// Build customerInfo from environment variables when provided.
+// Returns {} when no relevant env vars are set to preserve existing behavior in tests/dev.
+function envCustomerInfo() {
+  const tckn = process.env.ODEAL_CUSTOMER_TCKN;
+  const vkn = process.env.ODEAL_CUSTOMER_VKN;
+  const name = process.env.ODEAL_CUSTOMER_NAME;
+  const address = process.env.ODEAL_CUSTOMER_ADDRESS;
+
+  const anyProvided = [tckn, vkn, name, address].some(v => v != null && String(v).trim() !== '');
+  if (!anyProvided) return {};
+
+  return {
+    tcKimlikNo: tckn ? String(tckn) : '',
+    name: (name && String(name).trim() !== '') ? String(name) : 'End Consumer',
+    vergiKimlikNo: vkn ? String(vkn) : '',
+    address: address ? String(address) : '',
+  };
+}
+
 function parseCheckId(referenceCode) {
   // Accept formats like ROP_3215799, CHECK_123, trailing digits, and directcharge fallback
   if (!referenceCode || typeof referenceCode !== 'string') return undefined;
@@ -66,6 +85,7 @@ function mockBasket(referenceCode, overrideTotal) {
       total: overrideTotal != null ? Number(overrideTotal) : DEFAULT_TOTAL,
       employeeInfo: envEmployeeInfo(),
       employeeRef: EMP_REF || undefined,
+      customerInfo: envCustomerInfo(),
     });
   } catch (e) {
     if (e instanceof BasketValidationError) {
@@ -78,7 +98,7 @@ function mockBasket(referenceCode, overrideTotal) {
       referenceCode,
       basketPrice: { grossPrice: DEFAULT_TOTAL },
       products: [{ referenceCode: 'ITEM-TEST', name: 'Test Product', quantity: 1, unitCode: 'ADET', price: { grossPrice: DEFAULT_TOTAL, vatRatio: 0, sctRatio: 0 } }],
-      customerInfo: {},
+      customerInfo: envCustomerInfo(),
       employeeInfo: (Object.keys(envEmployeeInfo()).length)
         ? envEmployeeInfo()
         : (EMP_REF ? { employeeReferenceCode: EMP_REF } : {}),
@@ -102,7 +122,7 @@ function ropLinesToBasket(referenceCode, rop) {
   }
   if (!items.length) return mockBasket(referenceCode);
   try {
-    return buildBasket({ referenceCode, items, employeeRef: EMP_REF || undefined, employeeInfo: envEmployeeInfo() });
+    return buildBasket({ referenceCode, items, employeeRef: EMP_REF || undefined, employeeInfo: envEmployeeInfo(), customerInfo: envCustomerInfo() });
   } catch (e) {
     if (e instanceof BasketValidationError) {
       log.error('ROP basket validation failed', { error: e.message });
