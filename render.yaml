@@ -32,3 +32,30 @@ services:
         sync: false
       - key: ODEAL_REQUIRE_EMPLOYEE
         value: true
+      # Customer info (optional, included in basket.customer when set)
+      - key: ODEAL_CUSTOMER_REFERENCE_CODE
+        sync: false
+      - key: ODEAL_CUSTOMER_TYPE
+        sync: false
+      - key: ODEAL_CUSTOMER_TITLE
+        sync: false
+      - key: ODEAL_CUSTOMER_NAME
+        sync: false
+      - key: ODEAL_CUSTOMER_SURNAME
+        sync: false
+      - key: ODEAL_CUSTOMER_TAX_OFFICE
+        sync: false
+      - key: ODEAL_CUSTOMER_TAX_NUMBER
+        sync: false
+      - key: ODEAL_CUSTOMER_IDENTITY_NUMBER
+        sync: false
+      - key: ODEAL_CUSTOMER_GSM_NUMBER
+        sync: false
+      - key: ODEAL_CUSTOMER_EMAIL
+        sync: false
+      - key: ODEAL_CUSTOMER_CITY
+        sync: false
+      - key: ODEAL_CUSTOMER_TOWN
+        sync: false
+      - key: ODEAL_CUSTOMER_ADDRESS
+        sync: false

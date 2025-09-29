@@ -85,6 +85,27 @@ GET /app2app/baskets/:referenceCode
 - Headers: `X-ODEAL-REQUEST-KEY: <uuid>`
 - Returns Ödeal basket JSON.
 
+Customer in basket
+- If customer env vars are set, adapter adds a `customer` object (doc-shaped) to the basket:
+```
+customer: {
+  referenceCode: "CUST001",
+  type: "PERSON",              // or "COMPANY"
+  title: "End Consumer",       // or company title / full name
+  name: "Ali",                 // optional
+  surname: "Veli",             // optional
+  taxOffice: "Istanbul",       // optional
+  taxNumber: "1234567890",     // optional (VKN)
+  identityNumber: "12345678901", // optional (TCKN)
+  gsmNumber: "905551112233",   // optional
+  email: "ali.veli@example.com", // optional
+  city: "Istanbul",            // optional
+  town: "Besiktas",            // optional
+  address: "Barbaros Bulvari No:1" // optional
+}
+```
+Environment keys are listed in `.env.example`.
+
 Employee Info shape (embedded in basket)
 ```
 employeeInfo: {

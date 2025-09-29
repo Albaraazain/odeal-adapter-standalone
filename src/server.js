@@ -26,6 +26,9 @@ const EMP_REF_SET = Boolean(
 const REF_MAP_KEY = process.env.REF_MAP_KEY || '';
 const REF_MAP_ENABLED = String(process.env.REF_MAP_ENABLED || 'true').toLowerCase() === 'true';
 
+// Simple in-memory customer store for dev/testing of customerGetUrl/customerPostUrl
+const customerStore = new Map(); // key: referenceCode, value: customer object (doc-shaped)
+
 if (!ODEAL_REQUEST_KEY) {
   log.warn('ODEAL_REQUEST_KEY is not set; requests will be unauthorized');
 }
@@ -102,6 +105,63 @@ app.get('/health', (req, res) => {
 // Compatibility aliases for legacy serverless paths (no Vercel/Netlify now)
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, ts: new Date().toISOString() });
+});
+
+// Customers (Konfigürasyon → customerGetUrl/customerPostUrl)
+// GET by path param or query (?referenceCode=)
+app.get(['/app2app/customers/:referenceCode', '/app2app/customers'], (req, res) => {
+  if (!verifyOdeal(req, res)) return;
+  const ref = req.params.referenceCode || String(req.query.referenceCode || '').trim();
+  const rid = res.locals.rid;
+  if (!ref) {
+    log.warn('Customer GET missing referenceCode', { rid });
+    return res.status(400).json({ error: 'reference_code_missing' });
+  }
+  // prefer store, otherwise try env default (if provided via BASKET provider helper)
+  let customer = customerStore.get(ref);
+  // If not in store, respond with a minimal anonymous structure to keep device UX flowing
+  if (!customer) {
+    customer = {
+      referenceCode: ref,
+      type: 'PERSON',
+      title: 'End Consumer',
+    };
+  }
+  log.info('Customer GET', { rid, ref, provided: Boolean(customer) });
+  return res.json(customer);
+});
+
+// POST create/update customer
+app.post('/app2app/customers', (req, res) => {
+  if (!verifyOdeal(req, res)) return;
+  const rid = res.locals.rid;
+  const body = req.body || {};
+  const ref = String(body.referenceCode || '').trim();
+  const type = String(body.type || '').trim();
+  const title = String(body.title || '').trim();
+  if (!ref || !type || !title) {
+    log.warn('Customer POST validation failed', { rid, hasRef: Boolean(ref), hasType: Boolean(type), hasTitle: Boolean(title) });
+    return res.status(422).json({ error: 'customer_validation_error', detail: 'referenceCode, type, title required' });
+  }
+  // Store doc-shaped customer record (allow overwrites)
+  const record = {
+    referenceCode: ref,
+    type,
+    title,
+    name: body.name || undefined,
+    surname: body.surname || undefined,
+    taxOffice: body.taxOffice || undefined,
+    taxNumber: body.taxNumber || undefined,
+    identityNumber: body.identityNumber || undefined,
+    gsmNumber: body.gsmNumber || undefined,
+    email: body.email || undefined,
+    city: body.city || undefined,
+    town: body.town || undefined,
+    address: body.address || undefined,
+  };
+  customerStore.set(ref, record);
+  log.info('Customer POST stored', { rid, ref });
+  return res.status(201).json(record);
 });
 
 // Register UUID -> CheckId mapping from device/app
@@ -212,6 +272,7 @@ app.get('/app2app/baskets/:referenceCode', async (req, res) => {
             employeeReferenceCodePrefix: String(basket.employeeInfo.employeeReferenceCode || '').slice(0, 4),
             present: true,
           } : { present: false },
+          customerPresent: Boolean(basket?.customer && Object.keys(basket.customer).length),
           paymentOptions: Array.isArray(basket?.paymentOptions) ? basket.paymentOptions.map(p => p?.type) : [],
         };
         log.debug('Basket payload (sanitized)', { rid, sample });
@@ -225,6 +286,7 @@ app.get('/app2app/baskets/:referenceCode', async (req, res) => {
       total: basket?.basketPrice?.grossPrice,
       products: Array.isArray(basket?.products) ? basket.products.length : 0,
       employeeInfoPresent: Boolean(basket?.employeeInfo && Object.keys(basket.employeeInfo).length),
+      customerPresent: Boolean(basket?.customer && Object.keys(basket.customer).length),
       paymentOptions: Array.isArray(basket?.paymentOptions) ? basket.paymentOptions.map(p => p?.type).join(',') : undefined,
       ms: dt,
     });

@@ -23,6 +23,8 @@ const RENDER_BASE_URL = 'https://odeal-adapter-standalone.onrender.com';
 const configurationPayload = {
     basketType: "EXTERNAL_BASKET_WITH_APP",
     basketUrl: `${RENDER_BASE_URL}/app2app/baskets`,
+    customerGetUrl: `${RENDER_BASE_URL}/app2app/customers`,
+    customerPostUrl: `${RENDER_BASE_URL}/app2app/customers`,
     intentUrl: `${RENDER_BASE_URL}/odeal/a2a-result`,
     paymentSucceededUrl: `${RENDER_BASE_URL}/webhooks/odeal/payment-succeeded`,
     paymentFailedUrl: `${RENDER_BASE_URL}/webhooks/odeal/payment-failed`,

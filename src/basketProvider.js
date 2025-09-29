@@ -43,6 +43,47 @@ function envCustomerInfo() {
   };
 }
 
+// Build Ödeal doc-shaped customer object for basket.customer
+// Fields taken from docs (Sepet Aktar → customer object & Müşteri Kaydet):
+// - referenceCode (required by docs when sent)
+// - type (e.g., "PERSON" | "COMPANY")
+// - title (company title or full name)
+// - name, surname (optional)
+// - taxOffice, taxNumber (VKN), identityNumber (TCKN)
+// - gsmNumber, email, city, town, address
+function envOdealCustomer() {
+  const cfg = {
+    referenceCode: process.env.ODEAL_CUSTOMER_REFERENCE_CODE,
+    type: process.env.ODEAL_CUSTOMER_TYPE,
+    title: process.env.ODEAL_CUSTOMER_TITLE,
+    name: process.env.ODEAL_CUSTOMER_NAME,
+    surname: process.env.ODEAL_CUSTOMER_SURNAME,
+    taxOffice: process.env.ODEAL_CUSTOMER_TAX_OFFICE,
+    taxNumber: process.env.ODEAL_CUSTOMER_TAX_NUMBER,
+    identityNumber: process.env.ODEAL_CUSTOMER_IDENTITY_NUMBER || process.env.ODEAL_CUSTOMER_TCKN,
+    gsmNumber: process.env.ODEAL_CUSTOMER_GSM_NUMBER,
+    email: process.env.ODEAL_CUSTOMER_EMAIL,
+    city: process.env.ODEAL_CUSTOMER_CITY,
+    town: process.env.ODEAL_CUSTOMER_TOWN,
+    address: process.env.ODEAL_CUSTOMER_ADDRESS,
+  };
+
+  // If nothing meaningful is provided, return empty to omit from basket
+  const provided = Object.values(cfg).some(v => v != null && String(v).trim() !== '');
+  if (!provided) return {};
+
+  // Minimal defaults if partially provided
+  if (!cfg.type) cfg.type = 'PERSON';
+  if (!cfg.title) cfg.title = (cfg.name || cfg.surname) ? `${cfg.name || ''} ${cfg.surname || ''}`.trim() : 'End Consumer';
+
+  // Remove empty fields
+  const out = {};
+  for (const [k, v] of Object.entries(cfg)) {
+    if (v != null && String(v).trim() !== '') out[k] = String(v);
+  }
+  return out;
+}
+
 function parseCheckId(referenceCode) {
   // Accept formats like ROP_3215799, CHECK_123, trailing digits, and directcharge fallback
   if (!referenceCode || typeof referenceCode !== 'string') return undefined;
@@ -86,6 +127,7 @@ function mockBasket(referenceCode, overrideTotal) {
       employeeInfo: envEmployeeInfo(),
       employeeRef: EMP_REF || undefined,
       customerInfo: envCustomerInfo(),
+      customer: envOdealCustomer(),
     });
   } catch (e) {
     if (e instanceof BasketValidationError) {
@@ -99,6 +141,7 @@ function mockBasket(referenceCode, overrideTotal) {
       basketPrice: { grossPrice: DEFAULT_TOTAL },
       products: [{ referenceCode: 'ITEM-TEST', name: 'Test Product', quantity: 1, unitCode: 'ADET', price: { grossPrice: DEFAULT_TOTAL, vatRatio: 0, sctRatio: 0 } }],
       customerInfo: envCustomerInfo(),
+      customer: envOdealCustomer(),
       employeeInfo: (Object.keys(envEmployeeInfo()).length)
         ? envEmployeeInfo()
         : (EMP_REF ? { employeeReferenceCode: EMP_REF } : {}),
@@ -122,7 +165,7 @@ function ropLinesToBasket(referenceCode, rop) {
   }
   if (!items.length) return mockBasket(referenceCode);
   try {
-    return buildBasket({ referenceCode, items, employeeRef: EMP_REF || undefined, employeeInfo: envEmployeeInfo(), customerInfo: envCustomerInfo() });
+    return buildBasket({ referenceCode, items, employeeRef: EMP_REF || undefined, employeeInfo: envEmployeeInfo(), customerInfo: envCustomerInfo(), customer: envOdealCustomer() });
   } catch (e) {
     if (e instanceof BasketValidationError) {
       log.error('ROP basket validation failed', { error: e.message });

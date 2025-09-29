@@ -93,6 +93,8 @@ After deployment, provide these URLs to Ödeal:
 ```json
 {
   "basketUrl": "https://your-domain/app2app/baskets/{referenceCode}",
+  "customerGetUrl": "https://your-domain/app2app/customers",
+  "customerPostUrl": "https://your-domain/app2app/customers",
   "paymentSucceededUrl": "https://your-domain/webhooks/odeal/payment-succeeded",
   "paymentFailedUrl": "https://your-domain/webhooks/odeal/payment-failed",
   "paymentCancelledUrl": "https://your-domain/webhooks/odeal/payment-cancelled",

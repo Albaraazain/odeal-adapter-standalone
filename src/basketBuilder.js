@@ -85,7 +85,7 @@ function validateBasketModel(b) {
   }
 }
 
-function buildBasket({ referenceCode, items, employeeRef, employeeInfo, paymentAmount, customerInfo, receiptInfo, customInfo }) {
+function buildBasket({ referenceCode, items, employeeRef, employeeInfo, paymentAmount, customerInfo, customer, receiptInfo, customInfo }) {
   if (!referenceCode) throw new BasketValidationError('reference_code_missing');
   const products = [];
   for (const it of items || []) {
@@ -111,6 +111,8 @@ function buildBasket({ referenceCode, items, employeeRef, employeeInfo, paymentA
     customInfo: customInfo ?? null,
     employeeInfo: normalizeEmployeeInfo(employeeRef, employeeInfo),
     customerInfo: customerInfo || {},
+    // Include doc-shaped customer object if provided
+    ...(customer && Object.keys(customer).length ? { customer } : {}),
     basketPrice: { grossPrice: total },
     products,
     paymentOptions: [{ type: 'CREDITCARD', amount }],
@@ -119,13 +121,14 @@ function buildBasket({ referenceCode, items, employeeRef, employeeInfo, paymentA
   return basket;
 }
 
-function buildMock({ referenceCode, total, employeeRef, employeeInfo, customerInfo }) {
+function buildMock({ referenceCode, total, employeeRef, employeeInfo, customerInfo, customer }) {
   const t = round2(total != null ? total : 100);
   return buildBasket({
     referenceCode,
     employeeRef,
     employeeInfo,
     customerInfo,
+    customer,
     items: [{ referenceCode: 'ITEM-TEST', name: 'Test Product', quantity: 1, unitGross: t, vatRatio: 0, sctRatio: 0 }],
     paymentAmount: t,
   });
