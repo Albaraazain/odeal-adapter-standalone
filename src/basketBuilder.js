@@ -29,6 +29,32 @@ function round2(n) {
   return Math.round((Number(n) || 0) * 100) / 100;
 }
 
+// Normalize unit codes to Ödeal-accepted catalog codes.
+// Many TR fiscal systems use UN/CEFACT codes.
+// We map common synonyms to standard codes and default to C62 (piece).
+const UNIT_MAP = new Map([
+  // piece / adet
+  ['A', 'C62'], ['ADET', 'C62'], ['PCS', 'C62'], ['PIECE', 'C62'], ['UNIT', 'C62'], ['EACH', 'C62'], ['C62', 'C62'],
+  // kilogram
+  ['KG', 'KGM'], ['KGS', 'KGM'], ['KILOGRAM', 'KGM'], ['KGM', 'KGM'],
+  // gram
+  ['G', 'GRM'], ['GR', 'GRM'], ['GRAM', 'GRM'], ['GRM', 'GRM'],
+  // litre
+  ['L', 'LTR'], ['LT', 'LTR'], ['LITRE', 'LTR'], ['LITER', 'LTR'], ['LTR', 'LTR'],
+  // metre
+  ['M', 'MTR'], ['MT', 'MTR'], ['METRE', 'MTR'], ['METER', 'MTR'], ['MTR', 'MTR'],
+  // centimetre
+  ['CM', 'CMT'], ['CMT', 'CMT'],
+]);
+
+function normalizeUnitCode(code) {
+  const envDefault = String(process.env.ODEAL_DEFAULT_UNIT_CODE || '').trim();
+  const fallback = envDefault || 'C62';
+  if (!code) return fallback;
+  const k = String(code).trim().toUpperCase();
+  return UNIT_MAP.get(k) || k || fallback;
+}
+
 function normalizeEmployeeInfo(employeeRef, employeeInfo) {
   const src = employeeInfo && typeof employeeInfo === 'object' ? employeeInfo : {};
   const code = src.employeeReferenceCode != null && String(src.employeeReferenceCode).trim() !== ''
@@ -98,7 +124,7 @@ function buildBasket({ referenceCode, items, employeeRef, employeeInfo, paymentA
       referenceCode: String(it.referenceCode),
       name: String(it.name),
       quantity,
-      unitCode: String(it.unitCode || 'ADET'),
+      unitCode: normalizeUnitCode(it.unitCode),
       price: { grossPrice: round2(unitGross), vatRatio, sctRatio },
     });
   }

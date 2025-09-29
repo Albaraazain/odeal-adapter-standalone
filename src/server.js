@@ -268,6 +268,7 @@ app.get('/app2app/baskets/:referenceCode', async (req, res) => {
           referenceCode: basket?.referenceCode,
           basketPrice: { grossPrice: basket?.basketPrice?.grossPrice },
           productsCount: Array.isArray(basket?.products) ? basket.products.length : 0,
+          firstUnitCode: Array.isArray(basket?.products) && basket.products[0] ? basket.products[0].unitCode : undefined,
           employeeInfo: basket?.employeeInfo ? {
             employeeReferenceCodePrefix: String(basket.employeeInfo.employeeReferenceCode || '').slice(0, 4),
             present: true,

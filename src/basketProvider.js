@@ -126,7 +126,7 @@ function mockBasket(referenceCode, overrideTotal) {
     return {
       referenceCode,
       basketPrice: { grossPrice: DEFAULT_TOTAL },
-      products: [{ referenceCode: 'ITEM-TEST', name: 'Test Product', quantity: 1, unitCode: 'ADET', price: { grossPrice: DEFAULT_TOTAL, vatRatio: 0, sctRatio: 0 } }],
+      products: [{ referenceCode: 'ITEM-TEST', name: 'Test Product', quantity: 1, unitCode: (process.env.ODEAL_DEFAULT_UNIT_CODE || 'C62'), price: { grossPrice: DEFAULT_TOTAL, vatRatio: 0, sctRatio: 0 } }],
       customerInfo: envCustomerInfo(),
       customer: envOdealCustomer(),
       employeeInfo: (Object.keys(envEmployeeInfo()).length)
@@ -148,7 +148,15 @@ function ropLinesToBasket(referenceCode, rop) {
     const gross = Number(l.Total ?? l.Gross ?? l.Price ?? 0);
     const unitGross = gross && qty ? gross / qty : Number(l.Price || 0);
     const sku = l.Code || l.Sku || l.ItemCode || name;
-    items.push({ referenceCode: String(sku), name: String(name), quantity: qty, unitCode: 'ADET', unitGross: Number(unitGross.toFixed(2)), vatRatio: 0, sctRatio: 0 });
+    items.push({
+      referenceCode: String(sku),
+      name: String(name),
+      quantity: qty,
+      unitCode: process.env.ODEAL_DEFAULT_UNIT_CODE || 'C62',
+      unitGross: Number(unitGross.toFixed(2)),
+      vatRatio: 0,
+      sctRatio: 0,
+    });
   }
   if (!items.length) return mockBasket(referenceCode);
   try {
