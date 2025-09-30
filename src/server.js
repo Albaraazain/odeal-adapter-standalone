@@ -25,6 +25,7 @@ const EMP_REF_SET = Boolean(
 );
 const REF_MAP_KEY = process.env.REF_MAP_KEY || '';
 const REF_MAP_ENABLED = String(process.env.REF_MAP_ENABLED || 'true').toLowerCase() === 'true';
+const CUSTOMER_STRICT = String(process.env.ODEAL_CUSTOMER_STRICT || 'false').toLowerCase() === 'true';
 
 // Simple in-memory customer store for dev/testing of customerGetUrl/customerPostUrl
 const customerStore = new Map(); // key: referenceCode, value: customer object (doc-shaped)
@@ -102,6 +103,10 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, ts: new Date().toISOString() });
 });
 
+app.get('/ecommerce', (req, res) => {
+  res.json({ ok: true, message: 'eCommerce endpoint - not implemented yet' });
+});
+
 // Compatibility aliases for legacy serverless paths (no Vercel/Netlify now)
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, ts: new Date().toISOString() });
@@ -140,8 +145,30 @@ app.post('/app2app/customers', (req, res) => {
   const type = String(body.type || '').trim();
   const title = String(body.title || '').trim();
   if (!ref || !type || !title) {
-    log.warn('Customer POST validation failed', { rid, hasRef: Boolean(ref), hasType: Boolean(type), hasTitle: Boolean(title) });
-    return res.status(422).json({ error: 'customer_validation_error', detail: 'referenceCode, type, title required' });
+    if (CUSTOMER_STRICT) {
+      log.warn('Customer POST validation failed', { rid, hasRef: Boolean(ref), hasType: Boolean(type), hasTitle: Boolean(title) });
+      return res.status(422).json({ error: 'customer_validation_error', detail: 'referenceCode, type, title required' });
+    }
+    // Permissive mode: synthesize minimal acceptable record
+    const synthesizedRef = ref || `CUST_${rid}`;
+    const synthesized = {
+      referenceCode: synthesizedRef,
+      type: type || 'PERSON',
+      title: title || 'End Consumer',
+      name: body.name || undefined,
+      surname: body.surname || undefined,
+      taxOffice: body.taxOffice || undefined,
+      taxNumber: body.taxNumber || undefined,
+      identityNumber: body.identityNumber || undefined,
+      gsmNumber: body.gsmNumber || undefined,
+      email: body.email || undefined,
+      city: body.city || undefined,
+      town: body.town || undefined,
+      address: body.address || undefined,
+    };
+    customerStore.set(synthesizedRef, synthesized);
+    log.info('Customer POST synthesized', { rid, ref: synthesizedRef });
+    return res.json(synthesized);
   }
   // Store doc-shaped customer record (allow overwrites)
   const record = {
@@ -213,6 +240,22 @@ app.post('/api/webhooks/odeal/payment-failed', (req, res) => {
   return app._router.handle(req, res, () => res.status(404).end());
 });
 app.post('/api/webhooks/odeal/payment-cancelled', (req, res) => {
+  req.url = req.url.replace(/^\/api/, '');
+  return app._router.handle(req, res, () => res.status(404).end());
+});
+app.post('/api/webhooks/odeal/basket-cancelled', (req, res) => {
+  req.url = req.url.replace(/^\/api/, '');
+  return app._router.handle(req, res, () => res.status(404).end());
+});
+app.post('/api/webhooks/odeal/payback-succeeded', (req, res) => {
+  req.url = req.url.replace(/^\/api/, '');
+  return app._router.handle(req, res, () => res.status(404).end());
+});
+app.post('/api/webhooks/odeal/einvoice-created', (req, res) => {
+  req.url = req.url.replace(/^\/api/, '');
+  return app._router.handle(req, res, () => res.status(404).end());
+});
+app.post('/api/webhooks/odeal/einvoice-cancelled', (req, res) => {
   req.url = req.url.replace(/^\/api/, '');
   return app._router.handle(req, res, () => res.status(404).end());
 });
@@ -361,6 +404,10 @@ function webhookRoute(type) {
 app.post('/webhooks/odeal/payment-succeeded', webhookRoute('payment-succeeded'));
 app.post('/webhooks/odeal/payment-failed', webhookRoute('payment-failed'));
 app.post('/webhooks/odeal/payment-cancelled', webhookRoute('payment-cancelled'));
+app.post('/webhooks/odeal/basket-cancelled', webhookRoute('basket-cancelled'));
+app.post('/webhooks/odeal/payback-succeeded', webhookRoute('payback-succeeded'));
+app.post('/webhooks/odeal/einvoice-created', webhookRoute('einvoice-created'));
+app.post('/webhooks/odeal/einvoice-cancelled', webhookRoute('einvoice-cancelled'));
 
 app.listen(PORT, () => {
   log.info(`[odeal-adapter] listening on :${PORT}`);

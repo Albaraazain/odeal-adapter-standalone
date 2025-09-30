@@ -24,3 +24,230 @@
     "x-content-type-options": "nosniff"
   }
 }
+{
+  "timestamp": "2025-09-30T14:10:57.631Z",
+  "status": "FAILURE",
+  "statusCode": 401,
+  "configuration": {
+    "basketType": "EXTERNAL_BASKET_WITH_APP",
+    "basketUrl": "https://odeal-adapter-standalone.onrender.com/app2app/baskets",
+    "customerGetUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "customerPostUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "intentUrl": "https://odeal-adapter-standalone.onrender.com/odeal/a2a-result",
+    "paymentSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-succeeded",
+    "paymentFailedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-failed",
+    "paymentCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-cancelled",
+    "basketCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/basket-cancelled",
+    "paybackSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payback-succeeded",
+    "eInvoiceCreatedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-created",
+    "eInvoiceCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-cancelled",
+    "eCommerceUrl": "https://odeal-adapter-standalone.onrender.com/ecommerce",
+    "odealRequestKey": "test_key_for_development",
+    "eInvoiceIntegrator": "ODEAL"
+  },
+  "response": "{\"code\":10003,\"exceptionType\":\"PARAMETER_VALIDATION\",\"message\":\"Unauthorized access\"}",
+  "headers": {
+    "server": "nginx",
+    "date": "Tue, 30 Sep 2025 14:10:57 GMT",
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+    "x-kong-request-id": "9c661b3fc152a84e8fdd89383579613a",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "x-content-type-options": "nosniff"
+  }
+}
+{
+  "timestamp": "2025-09-30T14:12:01.071Z",
+  "status": "FAILURE",
+  "statusCode": 401,
+  "configuration": {
+    "basketType": "EXTERNAL_BASKET_WITH_APP",
+    "basketUrl": "https://odeal-adapter-standalone.onrender.com/app2app/baskets",
+    "customerGetUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "customerPostUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "intentUrl": "https://odeal-adapter-standalone.onrender.com/odeal/a2a-result",
+    "paymentSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-succeeded",
+    "paymentFailedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-failed",
+    "paymentCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-cancelled",
+    "basketCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/basket-cancelled",
+    "paybackSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payback-succeeded",
+    "eInvoiceCreatedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-created",
+    "eInvoiceCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-cancelled",
+    "eCommerceUrl": "https://odeal-adapter-standalone.onrender.com/ecommerce",
+    "odealRequestKey": "ODEAL01234567890",
+    "eInvoiceIntegrator": "ODEAL"
+  },
+  "response": "{\"code\":10003,\"exceptionType\":\"PARAMETER_VALIDATION\",\"message\":\"Unauthorized access\"}",
+  "headers": {
+    "server": "nginx",
+    "date": "Tue, 30 Sep 2025 14:12:01 GMT",
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+    "x-kong-request-id": "2631dc579fad1464c714e80910fe8a53",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "x-content-type-options": "nosniff"
+  }
+}
+{
+  "timestamp": "2025-09-30T14:13:44.133Z",
+  "status": "FAILURE",
+  "statusCode": 400,
+  "configuration": {
+    "basketType": "EXTERNAL_BASKET_WITH_APP",
+    "basketUrl": "https://odeal-adapter-standalone.onrender.com/app2app/baskets",
+    "customerGetUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "customerPostUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "intentUrl": "https://odeal-adapter-standalone.onrender.com/odeal/a2a-result",
+    "paymentSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-succeeded",
+    "paymentFailedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-failed",
+    "paymentCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-cancelled",
+    "basketCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/basket-cancelled",
+    "paybackSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payback-succeeded",
+    "eInvoiceCreatedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-created",
+    "eInvoiceCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-cancelled",
+    "eCommerceUrl": "https://odeal-adapter-standalone.onrender.com/ecommerce",
+    "odealRequestKey": "ODEAL01234567890",
+    "eInvoiceIntegrator": "ODEAL"
+  },
+  "response": "{\"code\":1117,\"exceptionType\":\"PARAMETER_VALIDATION\",\"message\":\"Geçersiz sepet tipi\",\"userMessage\":\"Geçersiz sepet tipi\"}",
+  "headers": {
+    "server": "nginx",
+    "date": "Tue, 30 Sep 2025 14:13:44 GMT",
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+    "x-kong-request-id": "ab5e0b1a5dde813198e5316dbe8d412d",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "x-content-type-options": "nosniff"
+  }
+}
+{
+  "timestamp": "2025-09-30T14:13:56.004Z",
+  "status": "FAILURE",
+  "statusCode": 400,
+  "configuration": {
+    "basketType": "Simple",
+    "basketUrl": "https://odeal-adapter-standalone.onrender.com/app2app/baskets",
+    "customerGetUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "customerPostUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "intentUrl": "https://odeal-adapter-standalone.onrender.com/odeal/a2a-result",
+    "paymentSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-succeeded",
+    "paymentFailedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-failed",
+    "paymentCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-cancelled",
+    "basketCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/basket-cancelled",
+    "paybackSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payback-succeeded",
+    "eInvoiceCreatedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-created",
+    "eInvoiceCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-cancelled",
+    "eCommerceUrl": "https://odeal-adapter-standalone.onrender.com/ecommerce",
+    "odealRequestKey": "ODEAL01234567890",
+    "eInvoiceIntegrator": "ODEAL"
+  },
+  "response": "{\"code\":500,\"exceptionType\":\"BUSINESS\",\"message\":\"undefined message key found: No enum constant com.retail.api.domain.enums.BasketType.Simple\",\"userMessage\":\"undefined message key found: No enum constant com.retail.api.domain.enums.BasketType.Simple\"}",
+  "headers": {
+    "server": "nginx",
+    "date": "Tue, 30 Sep 2025 14:13:56 GMT",
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+    "x-kong-request-id": "04d1bf565ee9fc010ec53a2ca4798f2a",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "x-content-type-options": "nosniff"
+  }
+}
+{
+  "timestamp": "2025-09-30T14:14:20.721Z",
+  "status": "FAILURE",
+  "statusCode": 400,
+  "configuration": {
+    "basketType": "EXTERNAL_BASKET_WITH_APP",
+    "basketUrl": "https://odeal-adapter-standalone.onrender.com/app2app/baskets",
+    "customerGetUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "customerPostUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "intentUrl": "https://odeal-adapter-standalone.onrender.com/odeal/a2a-result",
+    "paymentSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-succeeded",
+    "paymentFailedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-failed",
+    "paymentCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-cancelled",
+    "basketCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/basket-cancelled",
+    "paybackSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payback-succeeded",
+    "eInvoiceCreatedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-created",
+    "eInvoiceCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-cancelled",
+    "eCommerceUrl": "https://odeal-adapter-standalone.onrender.com/ecommerce",
+    "odealRequestKey": "ODEAL01234567890",
+    "eInvoiceIntegrator": "ODEAL"
+  },
+  "response": "{\"code\":1117,\"exceptionType\":\"PARAMETER_VALIDATION\",\"message\":\"Geçersiz sepet tipi\",\"userMessage\":\"Geçersiz sepet tipi\"}",
+  "headers": {
+    "server": "nginx",
+    "date": "Tue, 30 Sep 2025 14:14:20 GMT",
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+    "x-kong-request-id": "629a9d06a2d0727aff19033d53b53b35",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "x-content-type-options": "nosniff"
+  }
+}
+{
+  "timestamp": "2025-09-30T14:15:52.720Z",
+  "status": "FAILURE",
+  "statusCode": 400,
+  "configuration": {
+    "basketType": "external-basket-with-app",
+    "basketUrl": "https://odeal-adapter-standalone.onrender.com/app2app/baskets",
+    "customerGetUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "customerPostUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "intentUrl": "https://odeal-adapter-standalone.onrender.com/odeal/a2a-result",
+    "paymentSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-succeeded",
+    "paymentFailedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-failed",
+    "paymentCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-cancelled",
+    "basketCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/basket-cancelled",
+    "paybackSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payback-succeeded",
+    "eInvoiceCreatedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-created",
+    "eInvoiceCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-cancelled",
+    "eCommerceUrl": "https://odeal-adapter-standalone.onrender.com/ecommerce",
+    "odealRequestKey": "ODEAL01234567890",
+    "eInvoiceIntegrator": "ODEAL"
+  },
+  "response": "{\"code\":1117,\"exceptionType\":\"PARAMETER_VALIDATION\",\"message\":\"Geçersiz sepet tipi\",\"userMessage\":\"Geçersiz sepet tipi\"}",
+  "headers": {
+    "server": "nginx",
+    "date": "Tue, 30 Sep 2025 14:15:52 GMT",
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+    "x-kong-request-id": "f03b660834c87d5b0b6480215aafa84a",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "x-content-type-options": "nosniff"
+  }
+}
+{
+  "timestamp": "2025-09-30T14:17:02.110Z",
+  "status": "SUCCESS",
+  "statusCode": 201,
+  "configuration": {
+    "basketType": "SIMPLE",
+    "basketUrl": "https://odeal-adapter-standalone.onrender.com/app2app/baskets",
+    "customerGetUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "customerPostUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+    "intentUrl": "https://odeal-adapter-standalone.onrender.com/odeal/a2a-result",
+    "paymentSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-succeeded",
+    "paymentFailedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-failed",
+    "paymentCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-cancelled",
+    "basketCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/basket-cancelled",
+    "paybackSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payback-succeeded",
+    "eInvoiceCreatedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-created",
+    "eInvoiceCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-cancelled",
+    "eCommerceUrl": "https://odeal-adapter-standalone.onrender.com/ecommerce",
+    "odealRequestKey": "ODEAL01234567890",
+    "eInvoiceIntegrator": "ODEAL"
+  },
+  "response": ""
+}

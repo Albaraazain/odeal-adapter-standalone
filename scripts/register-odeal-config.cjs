@@ -21,7 +21,7 @@ const RENDER_BASE_URL = 'https://odeal-adapter-standalone.onrender.com';
 
 // Build configuration payload
 const configurationPayload = {
-    basketType: "EXTERNAL_BASKET_WITH_APP",
+    basketType: "SIMPLE",
     basketUrl: `${RENDER_BASE_URL}/app2app/baskets`,
     customerGetUrl: `${RENDER_BASE_URL}/app2app/customers`,
     customerPostUrl: `${RENDER_BASE_URL}/app2app/customers`,
@@ -29,7 +29,13 @@ const configurationPayload = {
     paymentSucceededUrl: `${RENDER_BASE_URL}/webhooks/odeal/payment-succeeded`,
     paymentFailedUrl: `${RENDER_BASE_URL}/webhooks/odeal/payment-failed`,
     paymentCancelledUrl: `${RENDER_BASE_URL}/webhooks/odeal/payment-cancelled`,
-    odealRequestKey: process.env.ODEAL_REQUEST_KEY || 'test_key_for_development'
+    basketCancelledUrl: `${RENDER_BASE_URL}/webhooks/odeal/basket-cancelled`,
+    paybackSucceededUrl: `${RENDER_BASE_URL}/webhooks/odeal/payback-succeeded`,
+    eInvoiceCreatedUrl: `${RENDER_BASE_URL}/webhooks/odeal/einvoice-created`,
+    eInvoiceCancelledUrl: `${RENDER_BASE_URL}/webhooks/odeal/einvoice-cancelled`,
+    eCommerceUrl: `${RENDER_BASE_URL}/ecommerce`,
+    odealRequestKey: process.env.ODEAL_REQUEST_KEY || 'test_key_for_development',
+    eInvoiceIntegrator: "ODEAL"
 };
 
 /**
@@ -52,6 +58,8 @@ async function registerConfiguration() {
             headers: {
                 'Content-Type': 'application/json',
                 'Content-Length': Buffer.byteLength(postData),
+                'X-ODEAL-MERCHANT-KEY': process.env.ODEAL_MERCHANT_KEY || '0d717acf-853b-44e3-8304-7684f821c836',
+                'X-ODEAL-SECRET-KEY': process.env.ODEAL_SECRET_KEY || '4916a1be8ceaa3765389331da966d334379f98b4a4c1efecfc396cb87cc2d081',
                 'User-Agent': 'ROP-Odeal-Adapter/1.0'
             }
         };

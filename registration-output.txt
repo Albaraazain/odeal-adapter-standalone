@@ -1,0 +1,59 @@
+🚀 Ödeal Configuration Registration Tool
+==========================================
+
+📋 STEP 1: Checking current configuration
+🔍 Verifying current Ödeal configuration...
+📡 Configuration check status: 405
+📄 Current configuration: {"type":"problemDetail.type.org.springframework.web.HttpRequestMethodNotSupportedException","title":"problemDetail.title.org.springframework.web.HttpRequestMethodNotSupportedException","status":405,"detail":"problemDetail.org.springframework.web.HttpRequestMethodNotSupportedException","instance":"/api/v1/configuration"}
+
+📋 STEP 2: Testing basket URL accessibility
+🧪 Testing basket URL accessibility...
+🔗 Basket URL test: 200
+📄 Response: {"referenceCode":"test_1759241660084","receiptInfo":{},"customInfo":null,"employeeInfo":{"employeeReferenceCode":"MyEmployee123","name":"SambaPOS","surname":"Test","identityNumber":"5999999999","gsmNu...
+
+📋 STEP 3: Registering configuration with Ödeal
+🔧 Ödeal Configuration Registration Starting...
+📋 Configuration payload:
+{
+  "basketType": "EXTERNAL_BASKET_WITH_APP",
+  "basketUrl": "https://odeal-adapter-standalone.onrender.com/app2app/baskets",
+  "customerGetUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+  "customerPostUrl": "https://odeal-adapter-standalone.onrender.com/app2app/customers",
+  "intentUrl": "https://odeal-adapter-standalone.onrender.com/odeal/a2a-result",
+  "paymentSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-succeeded",
+  "paymentFailedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-failed",
+  "paymentCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payment-cancelled",
+  "basketCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/basket-cancelled",
+  "paybackSucceededUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/payback-succeeded",
+  "eInvoiceCreatedUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-created",
+  "eInvoiceCancelledUrl": "https://odeal-adapter-standalone.onrender.com/webhooks/odeal/einvoice-cancelled",
+  "eCommerceUrl": "https://odeal-adapter-standalone.onrender.com/ecommerce",
+  "odealRequestKey": "ODEAL01234567890",
+  "eInvoiceIntegrator": "ODEAL"
+}
+
+📡 HTTP Response Status: 400
+📥 Response Headers: {
+  server: 'nginx',
+  date: 'Tue, 30 Sep 2025 14:14:20 GMT',
+  'content-type': 'application/json',
+  'transfer-encoding': 'chunked',
+  connection: 'keep-alive',
+  vary: 'Origin, Access-Control-Request-Method, Access-Control-Request-Headers',
+  'x-kong-request-id': '629a9d06a2d0727aff19033d53b53b35',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  'x-content-type-options': 'nosniff'
+}
+📄 Response Body: {"code":1117,"exceptionType":"PARAMETER_VALIDATION","message":"Geçersiz sepet tipi","userMessage":"Geçersiz sepet tipi"}
+
+❌ Configuration registration failed!
+
+💥 FAILED: Configuration registration failed
+Error: HTTP 400: {"code":1117,"exceptionType":"PARAMETER_VALIDATION","message":"Geçersiz sepet tipi","userMessage":"Geçersiz sepet tipi"}
+
+🔧 Troubleshooting steps:
+1. Check ODEAL_REQUEST_KEY is valid
+2. Verify Netlify functions are deployed and accessible
+3. Contact Ödeal support if API issues persist
+4. Check odeal-config-registration.log for details
+
