@@ -2,18 +2,14 @@ import axios from 'axios';
 import { log } from './logger.js';
 
 const ROP_BASE_URL = process.env.ROP_BASE_URL || 'http://test.ropapi.com/V6/App2App';
-const DEVICE_ID = process.env.DEVICE_ID;
-const RESTAURANT_ID = process.env.RESTAURANT_ID;
-const DEVICE_KEY = process.env.DEVICE_KEY;
 
-function reqBase() {
-  if (!DEVICE_ID || !RESTAURANT_ID || !DEVICE_KEY) {
-    throw new Error('Missing ROP credentials (DEVICE_ID, RESTAURANT_ID, DEVICE_KEY)');
+function reqBaseFrom({ deviceId, restaurantId }) {
+  if (!deviceId || restaurantId == null) {
+    throw new Error('Missing ROP credentials (deviceId, restaurantId)');
   }
   return {
-    DeviceId: DEVICE_ID,
-    RestaurantId: Number(RESTAURANT_ID),
-    DeviceKey: DEVICE_KEY,
+    DeviceId: String(deviceId),
+    RestaurantId: Number(restaurantId),
   };
 }
 
@@ -35,8 +31,8 @@ function makeHttp() {
 }
 const http = makeHttp();
 
-async function getCheckDetail({ CheckId, CheckNo = 0, TableNo = '' }) {
-  const base = reqBase();
+async function getCheckDetail({ deviceId, restaurantId, CheckId, CheckNo = 0, TableNo = '' }) {
+  const base = reqBaseFrom({ deviceId, restaurantId });
   const params = {
     ...base,
     CheckId: CheckId || 0,
@@ -49,9 +45,9 @@ async function getCheckDetail({ CheckId, CheckNo = 0, TableNo = '' }) {
   const t0 = Date.now();
   log.info('ROP CheckDetail → GET', {
     url,
-    hasCreds: Boolean(DEVICE_ID && RESTAURANT_ID && DEVICE_KEY),
-    deviceId: DEVICE_ID,
-    restaurantId: RESTAURANT_ID,
+    hasCreds: Boolean(deviceId && restaurantId),
+    deviceId,
+    restaurantId,
     checkId: params.CheckId,
   });
   const { data } = await http.get(url, { params });
@@ -60,6 +56,8 @@ async function getCheckDetail({ CheckId, CheckNo = 0, TableNo = '' }) {
 }
 
 async function postPaymentStatus({
+  deviceId,
+  restaurantId,
   CheckId,
   Status,
   PaymentType = 1,
@@ -68,7 +66,7 @@ async function postPaymentStatus({
   Customer,
   Invoice,
 }) {
-  const base = reqBase();
+  const base = reqBaseFrom({ deviceId, restaurantId });
   const url = `${ROP_BASE_URL}/PaymentStatus`;
   const body = {
     ...base,

@@ -1,6 +1,7 @@
 // Import ROP client only when needed to avoid HTTPS validation in mock mode
 
 import { log } from './logger.js';
+import { parseCompositeReference } from './referenceParser.js';
 import { buildBasket, buildMock, BasketValidationError } from './basketBuilder.js';
 
 const PROVIDER = (process.env.BASKET_PROVIDER || 'mock').toLowerCase();
@@ -71,39 +72,11 @@ function envOdealCustomer() {
   };
 }
 
-function parseCheckId(referenceCode) {
-  // Accept formats like ROP_3215799, CHECK_123, trailing digits, and directcharge fallback
+// Backward-compatible helper: extract legacy numeric checkId for logs only
+function parseLegacyNumericCheckId(referenceCode) {
   if (!referenceCode || typeof referenceCode !== 'string') return undefined;
-
-  // Handle directcharge fallback format: "directcharge?amount=585.0&ref=de1a7feb-94ed-4f6a-ba27-eccaefeb894f"
-  if (referenceCode.startsWith('directcharge?')) {
-    const urlParams = new URLSearchParams(referenceCode.substring('directcharge?'.length));
-    const actualRef = urlParams.get('ref');
-    if (actualRef) {
-      log.debug('parseCheckId: directcharge detected', { actualRef });
-      // Recursively parse the extracted reference
-      return parseCheckId(actualRef);
-    }
-  }
-
-  // Handle UUID patterns by returning null to trigger mock basket
-  // Since UUIDs are used for basket references but we need numeric checkIds for ROP lookup
-  if (referenceCode.includes('-') && /^[0-9a-f-]{36}$/i.test(referenceCode)) {
-    log.debug('parseCheckId: UUID reference detected, using mock basket', { referenceCode });
-    return null; // Return null to indicate we should use mock basket
-  }
-
-  // Handle prefixed numeric formats (ROP_123, CHECK_456, etc.)
   const m = /(?:.*?_)?(\d+)$/.exec(referenceCode);
-  const checkId = m ? Number(m[1]) : undefined;
-
-  if (!checkId) {
-    log.warn('parseCheckId: cannot extract numeric id', { referenceCode });
-  } else {
-    log.debug('parseCheckId: parsed', { checkId });
-  }
-
-  return checkId;
+  return m ? Number(m[1]) : undefined;
 }
 
 function mockBasket(referenceCode, overrideTotal) {
@@ -187,18 +160,19 @@ async function resolveBasket(referenceCode, opts = {}) {
     });
     return b;
   }
-  const checkId = parseCheckId(referenceCode);
-  if (!checkId) {
-    log.info('resolveBasket: mock due to missing checkId', { referenceCode, desiredTotal });
+  const composite = parseCompositeReference(referenceCode);
+  if (!composite) {
+    const legacy = parseLegacyNumericCheckId(referenceCode);
+    log.info('resolveBasket: mock due to missing composite reference', { referenceCode, desiredTotal, legacyCheckId: legacy });
     return mockBasket(referenceCode, desiredTotal);
   }
   try {
     // Import ROP client only when in ROP mode
     const { getCheckDetail } = await import('./ropClient.js');
     const t0 = Date.now();
-    const rop = await getCheckDetail({ CheckId: checkId });
+    const rop = await getCheckDetail({ deviceId: composite.deviceId, restaurantId: composite.restaurantId, CheckId: composite.checkId });
     const dt = Date.now() - t0;
-    log.info('resolveBasket: ROP check fetched', { checkId, ms: dt, hasLines: Boolean(rop?.Details || rop?.Lines) });
+    log.info('resolveBasket: ROP check fetched', { checkId: composite.checkId, ms: dt, hasLines: Boolean(rop?.Details || rop?.Lines) });
     const basket = ropLinesToBasket(referenceCode, rop);
     log.info('resolveBasket: basket from ROP', {
       referenceCode: basket.referenceCode,
@@ -215,7 +189,8 @@ async function resolveBasket(referenceCode, opts = {}) {
 }
 
 function extractCheckId(referenceCode) {
-  return parseCheckId(referenceCode);
+  const composite = parseCompositeReference(referenceCode);
+  return composite?.checkId;
 }
 
 export {

@@ -35,9 +35,6 @@ vercel --cwd odeal_adapter   # first deploy (choose scope, project name)
 vercel env add ODEAL_REQUEST_KEY
 vercel env add BASKET_PROVIDER
 vercel env add ROP_BASE_URL
-vercel env add DEVICE_ID
-vercel env add RESTAURANT_ID
-vercel env add DEVICE_KEY
 vercel env add ROUTE_ROP_AUTOSYNC
 ```
 4) Redeploy picking up env:
@@ -69,13 +66,17 @@ Employee Info (employeeInfo)
 
 When using provider = rop, set:
 - `ROP_BASE_URL` (default `http://test.ropapi.com/V6/App2App`)
-- `DEVICE_ID` – your device serial (e.g., from `ro.epay.serial`)
-- `RESTAURANT_ID` – your license number (integer)
-- `DEVICE_KEY` – your device key from ROP
+
+Credentials for ROP requests are parsed from the composite Ödeal reference code:
+
+```
+DeviceId_RestaurantId_CheckId
+```
+Example: `ABC002_1566000740_3215799`
 
 Optional ROP PaymentStatus bridge
 - `ROUTE_ROP_AUTOSYNC` (optional: `true` | `false`, default `false`)
-- On success/fail/cancel webhooks, the adapter will parse `basketReferenceCode` to infer `CheckId` (expects trailing digits or formats like `ROP_<CheckId>`), then POST to ROP `PaymentStatus`:
+- On success/fail/cancel webhooks, the adapter parses `basketReferenceCode` as composite and POSTs to ROP `PaymentStatus` using parsed `DeviceId`, `RestaurantId`, `CheckId`:
   - success → `Status=1`
   - failed  → `Status=-1`
   - cancelled → `Status=0`
@@ -125,7 +126,7 @@ POST /webhooks/odeal/payment-succeeded|failed|cancelled (or `/api/...` on Vercel
 Sample cURL
 ```
 # Basket fetch
-curl -s "http://localhost:8787/app2app/baskets/ROP_3215799" \
+curl -s "http://localhost:8787/app2app/baskets/ABC002_1566000740_3215799" \
   -H "X-ODEAL-REQUEST-KEY: $ODEAL_REQUEST_KEY" | jq .
 
 # Webhook - success
@@ -133,7 +134,7 @@ curl -s -X POST "http://localhost:8787/webhooks/odeal/payment-succeeded" \
   -H "Content-Type: application/json" \
   -H "X-ODEAL-REQUEST-KEY: $ODEAL_REQUEST_KEY" \
   -d '{
-        "basketReferenceCode":"ROP_3215799",
+        "basketReferenceCode":"ABC002_1566000740_3215799",
         "amount": 37.40,
         "transactionId": "odeal_tx_abc",
         "paymentType": "CREDITCARD",

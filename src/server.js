@@ -4,11 +4,12 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { timingSafeEqual } from 'node:crypto';
-import { resolveBasket, extractCheckId } from './basketProvider.js';
+import { resolveBasket } from './basketProvider.js';
 import { makeEventKey, isDuplicate, remember } from './idempotencyStore.js';
 import { postPaymentStatus } from './ropClient.js';
 import { refMap } from './refMap.js';
 import { log } from './logger.js';
+import { parseCompositeReference } from './referenceParser.js';
 
 const app = express();
 const PORT = Number(process.env.PORT || 8787);
@@ -361,17 +362,23 @@ app.get('/app2app/baskets/:referenceCode', async (req, res) => {
 // Webhook helpers
 async function maybeBridgeToRop({ type, body, rid }) {
   if (!ROUTE_ROP_AUTOSYNC) return;
+  // Only bridge payment events; skip others like einvoice/payback
+  const bridgeable = type === 'payment-succeeded' || type === 'payment-cancelled' || type === 'payment-failed';
+  if (!bridgeable) return;
   const ref = body?.basketReferenceCode || body?.referenceCode || '';
-  const checkId = extractCheckId(ref);
-  if (!checkId) return;
+  const composite = parseCompositeReference(ref);
+  if (!composite) {
+    log.warn('Bridge skipped: non-composite reference', { rid, type, refPrefix: String(ref).slice(0, 12) });
+    return;
+  }
   let status = -1;
   if (type === 'payment-succeeded') status = 1;
   else if (type === 'payment-cancelled') status = 0;
   else status = -1;
   try {
-    log.info('Bridge PaymentStatus → ROP', { rid, type, ref, checkId, status });
-    await postPaymentStatus({ CheckId: checkId, Status: status });
-    log.info('Bridge OK', { rid, checkId });
+    log.info('Bridge PaymentStatus → ROP', { rid, type, ref, checkId: composite.checkId, deviceId: composite.deviceId, restaurantId: composite.restaurantId, status });
+    await postPaymentStatus({ deviceId: composite.deviceId, restaurantId: composite.restaurantId, CheckId: composite.checkId, Status: status });
+    log.info('Bridge OK', { rid, checkId: composite.checkId });
   } catch (e) {
     log.warn('Bridge failed', { rid, error: String(e?.message || e) });
   }
